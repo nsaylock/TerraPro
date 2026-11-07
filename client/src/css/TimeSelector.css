@@ -1,0 +1,60 @@
+.time-box {
+  border: 1px solid black;
+}
+
+.flex, .white-box { 
+  display: flex; 
+  justify-self: center;
+  align-items: center;
+}
+
+.white-box {
+  background-color: white;
+  border: 1px solid black;
+  padding: 0 5px;
+  border-radius: 5px;
+  justify-self: start;
+  width: 96%;
+}
+
+.edit-btn {
+  margin: 0 .5rem;
+}
+
+.time-edit-grid {
+  display: grid;
+  grid-template-columns: 2rem 1rem 2rem 2.5rem;
+}
+
+.up-arrow {
+  height: 0.8rem;
+  width: 0.8rem;
+  background-color: black;
+  clip-path: polygon(50% 20%, 0% 100%, 100% 100%, 50% 20%);
+}
+
+.down-arrow {
+  height: 0.8rem;
+  width: 0.8rem;
+  background-color: black;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 80%, 50% 80%);
+}
+
+.invis-btn {
+  background-color: transparent;
+  border: none;
+  transition: transform 300ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.invis-btn:hover {
+  transform: scale(1.2);
+}
+
+.date-edit-grid {
+  display: grid;
+  grid-template-columns: 2rem 1rem 2rem 1rem 2rem;
+  row-gap: 0.5rem;
+}
