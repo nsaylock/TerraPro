@@ -33,7 +33,7 @@ function ClockOut({API_URL}) {
     let tempArray = endTime.split(/[: ]/);
     let ETHours = Number(tempArray[0]);
     let ETMins = Number(tempArray[1]);
-    if (tempArray[2] === 'PM') ETHours += 12;
+    if (tempArray[2] === 'PM' && tempArray[0] != 12) ETHours += 12;
     let elapsedHours = ETHours - STHours;
     let elapsedMins =  ETMins - STMins;
     if (elapsedMins < 0) {
@@ -50,6 +50,7 @@ function ClockOut({API_URL}) {
     }
     setEntryHours(calculatedHours);
   }
+
 
   useEffect(()=>{
     calculate_hours();
@@ -73,7 +74,7 @@ return (
       <label>Start Time:</label>
       <p>{startTime}</p>
       <label>End Time:</label>
-      <TimeSelector pullTimeData={(timeString)=>setEndTime(timeString)}/>
+      <TimeSelector header='End Time' pullTimeData={(timeString)=>setEndTime(timeString)}/>
       <label>On-Site:</label>
       <p>{entryHours} hrs</p>
     </div> {/**Close clock out grid */}

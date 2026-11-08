@@ -72,7 +72,7 @@ function ClockIn({API_URL}) {
       <DateSelector pullDateString={(dateString)=>setDateEntry(dateString)}/>
       <label>Time:</label>
 
-      <TimeSelector pullTimeData={(timeString)=>setStartTime(timeString)} />
+      <TimeSelector header='Start Time' pullTimeData={(timeString)=>setStartTime(timeString)} />
 
       <span style={{display: 'inline-block'}}><label>Job Name:</label></span>
       <input type="text"

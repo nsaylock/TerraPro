@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Modal from '../components/Modal';
 import '../css/TimeSelector.css';
 
-function TimeSelector({pullTimeData}) {
+function TimeSelector({header, pullTimeData}) {
   const [timeOfDay, setTimeOfDay] = useState('');
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
   let [currentMinute, setCurrentMinute] = useState(new Date().getMinutes());
@@ -94,7 +94,7 @@ function TimeSelector({pullTimeData}) {
       <button type='button' onClick={()=>setTimeNow()} className='edit-btn'>Now</button>
     </div>
     <Modal isOpen={modalOpen} onClose={()=>setModalOpen(false)}>
-      <h2 style={{color: 'black'}}>Start Time</h2>
+      <h2 style={{color: 'black'}}>{header}</h2>
       <div className='time-edit-grid'>
       <button
         className='invis-btn'

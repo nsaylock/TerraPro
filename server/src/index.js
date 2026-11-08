@@ -16,7 +16,6 @@ const dbPath = path.resolve(__dirname, './db/jobs.db');
 // Initialize SQLite database (creates database.db file if it does not exist)
 const db = new DatabaseSync(dbPath);
 
-// Create a sample 'users' table
 db.exec(`
   CREATE TABLE IF NOT EXISTS jobs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
