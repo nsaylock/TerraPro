@@ -6,7 +6,7 @@ import Travel from './Travel';
 // Need to disable clock out button if not all fields are filled
 // Will need to be able to handle over night jobs
 
-function ClockOut({API_URL}) {
+function ClockOut({BASE_URL}) {
   const [travelOpen, setTravelOpen] = useState(false);
   const [reverseTrip, setReverseTrip] = useState(false);
 

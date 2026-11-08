@@ -6,7 +6,7 @@ import { Link, Routes, Route } from 'react-router-dom';
 import './css/App.css'
 import ClockOut from './components/ClockOut';
 
-const JOBS_API_URL = 'http://localhost:3000/api/jobs';
+const BASE_URL = 'http://localhost:3000/api/';
 
 function App() {
   function check_width() {
@@ -22,10 +22,10 @@ function App() {
       <Link to='/'><button>Clock In</button></Link>
       <Link to='/mix-calculator'><button>Mix Calculator</button></Link>
       <Routes>
-        <Route path='/' element={<ClockIn API_URL={JOBS_API_URL} />}/>
-        <Route path='/timeDB' element={<TimeDB API_URL={JOBS_API_URL}/>}/>
+        <Route path='/' element={<ClockIn BASE_URL={BASE_URL} />}/>
+        <Route path='/timeDB' element={<TimeDB BASE_URL={BASE_URL}/>}/>
         <Route path='/mix-calculator' element={<MixCalculator />}/>
-        <Route path='/clock-out' element={<ClockOut API_URL={JOBS_API_URL}/>}/>
+        <Route path='/clock-out' element={<ClockOut BASE_URL={BASE_URL}/>}/>
       </Routes>
     </div>
   )

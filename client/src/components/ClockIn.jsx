@@ -4,21 +4,33 @@ import TimeSelector from "./TimeSelector";
 import Travel from './Travel';
 import '../css/App.css';
 
-function ClockIn({API_URL}) {
-  const [entries, setEntries] = useState([]);
+function ClockIn({BASE_URL}) {
+  const [timesheetDb, setTimesheetDb] = useState([]);
+  const [travelDb, setTravelDb] = useState([]);
+
+  // Timesheet DB
   const [jobName, setJobName] = useState('');
   const [jobNumber, setJobNumber] = useState('');
   const [reportNumber, setReportNumber] = useState('');
-  const [dateEntry, setDateEntry] = useState('');
+  const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [entryHours, setEntryHours] = useState(0);
   const [service, setService] = useState('');
+  const [sets, setSets] = useState('');
+
+  // Travel DB
   const [travelType, setTravelType] = useState('');
-  const [fromLoc, setFromLoc] = useState('');
-  const [toLoc, setToLoc] = useState('');
-  const [mileage, setMileage] = useState('');
-  const [travelTime, setTravelTime] = useState('');
+  const [toSiteStart, setToSiteStart] = useState('');
+  const [toSiteEnd, setToSiteEnd] = useState('');
+  //const [fromSiteStart, setFromSiteStart] = useState('');
+  //const [fromSiteEnd, setFromSiteEnd] = useState('');
+  const [milesToSite, setMilesToSite] = useState('');
+  //const [milesFromSite, setMilesFromSite] = useState('');
+  //const [totalMiles, setTotalMiles] = useState('');
+  const [timeToSite, setTimeToSite] = useState(0);
+  //const [timeFromSite, setTimeFromSite] = useState(0);
+  //const [totalTravelTime, setTotalTravelTime] = useState('');
   
   const [travelOpen, setTravelOpen] = useState(false); 
 
@@ -28,40 +40,64 @@ function ClockIn({API_URL}) {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${BASE_URL}/timesheet`);
       const data = await response.json();
-      setEntries(data);
+      setTimesheetDb(data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching timesheet:', error);
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/travel`);
+      const data = await response.json();
+      setTravelDb(data);
+    } catch (error) {
+      console.error('Error fetching travel:', error);
     }
   }
 
   const handleSubmit = async(e)=> {
     e.preventDefault();
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(`${BASE_URL}/timesheet`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ jobName, jobNumber, reportNumber, dateEntry, startTime, endTime, entryHours, service, travelType, fromLoc, toLoc, mileage, travelTime })
+        body: JSON.stringify({ 
+          jobName, jobNumber, reportNumber, date, 
+          startTime, endTime, entryHours, service,
+          sets, cylinders
+        })
       });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Failed to add new entry');
       }
-      setEntries([...entries, data]);
+      setTimesheetDb([...timesheetDb, data]);
+    } catch (error) {
+      console.error(error.message);
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/travel`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ 
+          travelType, toSiteStart, toSiteEnd, fromSiteStart, fromSiteEnd,
+          milesToSite, milesFromSite, totalMiles, timeToSite,
+          timeFromSite, totalTravelTime
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to add new entry');
+      }
+      setTravelDb([...travelDb, data]);
     } catch (error) {
       console.error(error.message);
     }
   }
 
-  function clear_all_fields() {
-    setJobName('');
-    setDateEntry('');
-    setStartTime('');
-    setEndTime('');
-    setService('');
-
-  }
+  // Maybe clear all fields
 
   return (
     <div style={{color: 'black', padding: '1rem'}}>
@@ -69,7 +105,7 @@ function ClockIn({API_URL}) {
 
       <div className='clock-in-grid'>
       <label>Date:</label>
-      <DateSelector pullDateString={(dateString)=>setDateEntry(dateString)}/>
+      <DateSelector pullDateString={(dateString)=>setDate(dateString)}/>
       <label>Time:</label>
 
       <TimeSelector header='Start Time' pullTimeData={(timeString)=>setStartTime(timeString)} />
@@ -81,6 +117,7 @@ function ClockIn({API_URL}) {
       <label>Job #:</label><input type='text' onChange={(e)=>setJobNumber(e.target.value)}/>
       <label>Report #:</label><input type='text' onChange={(e)=>setReportNumber(e.target.value)} />
       <span style={{display: 'inline-block'}}><label>Service:</label></span>
+
       <select name="service-performed"
         value={service}
         onChange={(option)=>setService(option.target.value)}>
@@ -90,6 +127,7 @@ function ClockIn({API_URL}) {
         <option value={'Soils Testing'}>Soils Testing</option>
         <option value={'Asphalt Testing'}>Asphalt Testing</option>
       </select>
+
       <label>Include Travel?</label>
       <span style={{justifySelf: 'start'}}>
           <input type='radio' onChange={()=>setTravelOpen(true)}
@@ -103,8 +141,8 @@ function ClockIn({API_URL}) {
       
       <div className='main'>
         <Travel isOpen={travelOpen} travelData={(array)=>{
-          setFromLoc(array[0]), setToLoc(array[1]),
-          setMileage(array[2]), setTravelTime(array[3]),
+          setToSiteStart(array[0]), setToSiteEnd(array[1]),
+          setMilesToSite(array[2]), setTimeToSite(array[3]),
           setTravelType(array[4])
         }} />
       </div>

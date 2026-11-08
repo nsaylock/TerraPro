@@ -11,7 +11,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
 const path = require('path');
-const dbPath = path.resolve(__dirname, './db/jobs.db');
+const dbPath = path.resolve(__dirname, './jobs.db');
 
 // Initialize SQLite database (creates database.db file if it does not exist)
 const db = new DatabaseSync(dbPath);
