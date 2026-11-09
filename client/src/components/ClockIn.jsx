@@ -23,14 +23,14 @@ function ClockIn({BASE_URL}) {
   const [travelType, setTravelType] = useState('');
   const [toSiteStart, setToSiteStart] = useState('');
   const [toSiteEnd, setToSiteEnd] = useState('');
-  //const [fromSiteStart, setFromSiteStart] = useState('');
-  //const [fromSiteEnd, setFromSiteEnd] = useState('');
+  const [fromSiteStart, setFromSiteStart] = useState('');
+  const [fromSiteEnd, setFromSiteEnd] = useState('');
   const [milesToSite, setMilesToSite] = useState('');
-  //const [milesFromSite, setMilesFromSite] = useState('');
-  //const [totalMiles, setTotalMiles] = useState('');
+  const [milesFromSite, setMilesFromSite] = useState('');
+  const [totalMiles, setTotalMiles] = useState('');
   const [timeToSite, setTimeToSite] = useState(0);
-  //const [timeFromSite, setTimeFromSite] = useState(0);
-  //const [totalTravelTime, setTotalTravelTime] = useState('');
+  const [timeFromSite, setTimeFromSite] = useState(0);
+  const [totalTravelTime, setTotalTravelTime] = useState('');
   
   const [travelOpen, setTravelOpen] = useState(false); 
 

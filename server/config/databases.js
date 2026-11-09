@@ -14,7 +14,6 @@ return db;
 }
 
 const timesheetDb = createDB('timesheet', 'timesheet.db');
-const travelDb = createDB('travel', 'travel.db');
 
 // Initialize schemas
 timesheetDb.exec(`
@@ -34,7 +33,7 @@ timesheetDb.exec(`
   )
 `);
 
-travelDb.exec(`
+timesheetDb.exec(`
   CREATE TABLE IF NOT EXISTS travel (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timesheet_id INTEGER NOT NULL,
@@ -54,4 +53,4 @@ travelDb.exec(`
   )
 `);
 
-module.exports = { usersDb, ordersDb };
+module.exports = { timesheetDb };

@@ -6,7 +6,7 @@ import { Link, Routes, Route } from 'react-router-dom';
 import './css/App.css'
 import ClockOut from './components/ClockOut';
 
-const BASE_URL = 'http://localhost:3000/api/';
+const BASE_URL = 'http://localhost:3000/api';
 
 function App() {
   function check_width() {

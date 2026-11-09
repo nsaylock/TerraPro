@@ -1,17 +1,17 @@
 const express = require('express');
-const { travelDb, timesheetDb } = require('../config/databases');
+const { timesheetDb } = require('../config/databases');
 const router = express.Router();
 
 const stmts = {
-  all: travelDb.prepare('SELECT * FROM travel ORDER BY created_at DESC'),
-  getByTimesheet: travelDb.prepare('SELECT * FROM travel WHERE timesheet_id = ?'),
-  insert: travelDb.prepare(`INSERT INTO travel (
+  all: timesheetDb.prepare('SELECT * FROM travel ORDER BY created_at DESC'),
+  getByTimesheet: timesheetDb.prepare('SELECT * FROM travel WHERE timesheet_id = ?'),
+  insert: timesheetDb.prepare(`INSERT INTO travel (
     timesheet_id, travelType, toSiteStart, toSiteEnd,
     fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
     totalMiles, timeToSite, timeFromSite, totalTravelTime
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-  updateStatus: travelDb.prepare(`UPDATE travel SET 
+  updateStatus: timesheetDb.prepare(`UPDATE travel SET 
     travelType = ?,
     toSiteStart = ?,
     toSiteEnd = ?,
@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
 });
 
 // what is timesheet id ???
-router.get('/user/:timesheetId', (req, res, next) => {
+router.get('/timesheet/:timesheetId', (req, res, next) => {
   try {
     res.json(stmts.getByTimesheet.all(req.params.timesheetId));
   } catch (err) { next(err); }
@@ -45,8 +45,8 @@ router.post('/', (req, res, next) => {
     totalMiles, timeToSite, timeFromSite, totalTravelTime } = req.body;
 
     // Validate user exists in the OTHER database
-    const timesheet = timesheetDb.prepare('SELECT id FROM timesheet WHERE id = ?').get(timesheet_id);
-    if (!timesheet) return res.status(400).json({ error: 'Invalid timesheet' });
+    const ts = timesheetDb.prepare('SELECT id FROM timesheet WHERE id = ?').get(timesheet_id);
+    if (!ts) return res.status(400).json({ error: 'Invalid timesheet' });
 
     const entry = stmts.insert.run(
       timesheet_id, travelType, toSiteStart, toSiteEnd,
