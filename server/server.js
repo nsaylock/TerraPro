@@ -1,18 +1,20 @@
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const timesheetRoutes = require('./routes/timesheet');
-const travelRoutes = require('./routes/travel');
 
 const app = express();
+
 
 // Ensure data directory exists
 fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 app.use(logger);
 
@@ -20,7 +22,6 @@ app.use(logger);
 
 
 app.use('/api/timesheet', timesheetRoutes);
-app.use('/api/travel', travelRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

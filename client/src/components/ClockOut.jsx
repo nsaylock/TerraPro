@@ -11,19 +11,26 @@ function ClockOut({BASE_URL}) {
   const [reverseTrip, setReverseTrip] = useState(false);
 
   const location = useLocation(null);
-  const date = location.state?.date;
-  const job = location.state?.job;
-  const jobNumber = location.state?.jobNumber;
-  const startTime = location.state?.startTime;
+  const entryId = location.state?.id;
+  const [entry, setEntry] = useState([]);
+
   const [endTime, setEndTime] = useState(location.state?.endTime);
-  const [entryHours, setEntryHours] = useState(0);
+  const [onSiteHours, setOnSiteHours] = useState(0);
 
-  const fromLoc = location.state?.fromLoc;
-  const toLoc = location.state?.toLoc;
-  const mileage = location.state?.mileage;
-  const travelTime = location.state?.travelTime;
+  const fetchEntry = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/timesheet/${entryId}`);
+      const data = await response.json();
+      setEntry(data)
+    } catch (error) {
+      console.log('Error fetching entry: ', error.message)
+    }
+  }
+  useEffect(()=>{
+    fetchEntry();
+  },[])
 
-  let STArray = startTime.split(/[: ]/); // Start Time Array
+  let STArray = entry.startTime.split(/[: ]/); // Start Time Array
   let STHours = Number(STArray[0]);
   let STMins = Number(STArray[1]);
   if (STArray[2] === 'PM') STHours += 12;
@@ -48,7 +55,7 @@ function ClockOut({BASE_URL}) {
     } else {
       calculatedHours = (elapsedHours + elapsedMins/60).toFixed(2);
     }
-    setEntryHours(calculatedHours);
+    setOnSiteHours(calculatedHours);
   }
 
 
@@ -65,33 +72,33 @@ return (
     <h1>Clock Out</h1>
     <div className='clock-in-grid'>
       <label>Date:</label>
-      <p>{date}</p>
+      <p>{entry.date}</p>
       
       <label>Job Name:</label>
-      <p>{job}</p>
+      <p>{entry.job}</p>
       <label>Job Number:</label>
-      <p>{jobNumber}</p>
+      <p>{entry.jobNumber}</p>
       <label>Start Time:</label>
-      <p>{startTime}</p>
+      <p>{entry.startTime}</p>
       <label>End Time:</label>
       <TimeSelector header='End Time' pullTimeData={(timeString)=>setEndTime(timeString)}/>
       <label>On-Site:</label>
-      <p>{entryHours} hrs</p>
+      <p>{entry.onSiteHours} hrs</p>
     </div> {/**Close clock out grid */}
     <h2 style={{marginTop: '10px'}}>Travel</h2>
     <div className='clock-in-grid'>
       <label>To Site:</label>
-      <p>{fromLoc + ' to ' + toLoc}</p>
+      <p>{entry.toSiteStart + ' to ' + entry.toSiteEnd}</p>
       {reverseTrip === true && (
         <>
         <label>From Site:</label>
-        <p>{toLoc + ' to ' + fromLoc}</p>
+        <p>{entry.toSiteStart + ' to ' + entry.toSiteEnd}</p>
         </>
       )}
       <label>Mileage:</label>
-      <p>{reverseTrip===true?mileage*2:mileage} mi</p>
+      <p>{reverseTrip===true?entry.milesToSite*2:entry.milesToSite} mi</p>
       <label>Travel Time:</label>
-      <p>{reverseTrip===true?travelTime*2:travelTime} hrs</p>
+      <p>{reverseTrip===true?entry.timeToSite*2:entry.timeToSite} hrs</p>
     </div>
     <div>
       <span className='flex'>

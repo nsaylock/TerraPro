@@ -8,9 +8,11 @@ const stmts = {
   get: timesheetDb.prepare('SELECT * FROM timesheet WHERE id = ?'),
   insert: timesheetDb.prepare(`INSERT INTO timesheet (
     jobName, jobNumber, reportNumber, date, startTime, endTime,
-    entryHours, service, sets, cylinders
+    onSiteHours, service, travelType, toSiteStart, toSiteEnd,
+    fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
+    totalMiles, timeToSite, timeFromSite, totalTravelTime, sets, cylinders
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
   update: timesheetDb.prepare(`UPDATE timesheet SET 
     jobName = ?,
     jobNumber = ?,
@@ -18,8 +20,19 @@ const stmts = {
     date = ?,
     startTime = ?,
     endTime = ?,
-    entryHours = ?,
+    onSiteHours = ?,
     service = ?,
+    travelType = ?,
+    toSiteStart = ?,
+    toSiteEnd = ?,
+    fromSiteStart = ?,
+    fromSiteEnd = ?,
+    milesToSite = ?,
+    milesFromSite = ?,
+    totalMiles = ?,
+    timeToSite = ?,
+    timeFromSite = ?,
+    totalTravelTime = ?,
     sets = ?,
     cylinders = ?
     WHERE id = ?`),
@@ -42,18 +55,27 @@ router.post('/', (req, res, next) => {
   try {
     const { 
       jobName, jobNumber, reportNumber, date, 
-      startTime, endTime, entryHours, service,
+      startTime, endTime, onSiteHours, service,
+      travelType, toSiteStart, toSiteEnd,
+      fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
+      totalMiles, timeToSite, timeFromSite, totalTravelTime,
       sets, cylinders
     } = req.body;
     if (!date || !startTime) return res.status(400).json({ error: 'Date and Start Time required' });
     const entry = stmts.insert.run(
       jobName, jobNumber, reportNumber, date, 
-      startTime, endTime, entryHours, service,
+      startTime, endTime, onSiteHours, service,
+      travelType, toSiteStart, toSiteEnd,
+      fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
+      totalMiles, timeToSite, timeFromSite, totalTravelTime,
       sets, cylinders
     );
     res.status(201).json({ id: entry.lastInsertRowid, 
       jobName, jobNumber, reportNumber, date, 
-      startTime, endTime, entryHours, service,
+      startTime, endTime, onSiteHours, service,
+      travelType, toSiteStart, toSiteEnd,
+      fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
+      totalMiles, timeToSite, timeFromSite, totalTravelTime,
       sets, cylinders
     });
   } catch (err) { next(err); }
@@ -63,17 +85,26 @@ router.put('/:id', (req, res, next) => {
   try {
     const {
       jobName, jobNumber, reportNumber, date, 
-      startTime, endTime, entryHours, service,
+      startTime, endTime, onSiteHours, service,
+      travelType, toSiteStart, toSiteEnd,
+      fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
+      totalMiles, timeToSite, timeFromSite, totalTravelTime,
       sets, cylinders
     } = req.body;
     const entry = stmts.update.run(
       jobName, jobNumber, reportNumber, date, 
-      startTime, endTime, entryHours, service,
+      startTime, endTime, onSiteHours, service,
+      travelType, toSiteStart, toSiteEnd,
+      fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
+      totalMiles, timeToSite, timeFromSite, totalTravelTime,
       sets, cylinders, req.params.id
     );
     if (entry.changes === 0) return res.status(404).json({ error: 'Entry not found' });
     res.json({ id: Number(req.params.id), jobName, jobNumber, reportNumber, date, 
-      startTime, endTime, entryHours, service,
+      startTime, endTime, onSiteHours, service,
+      travelType, toSiteStart, toSiteEnd,
+      fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
+      totalMiles, timeToSite, timeFromSite, totalTravelTime,
       sets, cylinders });
   } catch (err) { next(err); }
 });

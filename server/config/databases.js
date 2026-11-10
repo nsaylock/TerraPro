@@ -25,18 +25,8 @@ timesheetDb.exec(`
     date TEXT NOT NULL,
     startTime TEXT NOT NULL,
     endTime TEXT,
-    entryHours REAL,
+    onSiteHours REAL,
     service TEXT,
-    sets INTEGER,
-    cylinders INTEGER,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
-  )
-`);
-
-timesheetDb.exec(`
-  CREATE TABLE IF NOT EXISTS travel (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    timesheet_id INTEGER NOT NULL,
     travelType TEXT,
     toSiteStart TEXT,
     toSiteEnd TEXT,
@@ -48,8 +38,9 @@ timesheetDb.exec(`
     timeToSite REAL,
     timeFromSite REAL,
     totalTravelTime REAL,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (timesheet_id) REFERENCES timesheet(id)
+    sets INTEGER,
+    cylinders INTEGER,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `);
 

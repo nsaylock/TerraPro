@@ -1,11 +1,10 @@
 import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import ClockOut from './ClockOut';
 import '../css/data.css';
 
 
-function TimeDB({API_URL}) {
-  const [entries, setEntries] = useState([]);
+function TimeDB({BASE_URL}) {
+  const [timesheet, setTimesheet] = useState([]);
 
   useEffect(()=>{
       fetchData();
@@ -13,12 +12,13 @@ function TimeDB({API_URL}) {
   
   const fetchData = async () => {
     try {
-      const response = await fetch(API_URL);
+      const response = await fetch(`${BASE_URL}/timesheet`);
       const data = await response.json();
-      setEntries(data);
+      setTimesheet(data);
     } catch (error) {
-      console.log('Error fetching data:', error.message);
+      console.log('Error fetching timesheet:', error.message);
     }
+
   }
 
     // 3. Handle deleting a user
@@ -26,12 +26,12 @@ function TimeDB({API_URL}) {
     if (!window.confirm('Are you sure you want to delete this entry?')) return;
 
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
+      const response = await fetch(`${BASE_URL}/timesheet/${id}`, {
         method: 'DELETE',
       });
         if (response.ok) {
           // Filter out deleted user from UI state instantly
-          setEntries(entries.filter((entry) => entry.id !== id));
+          setTimesheet(timesheet.filter((entry) => entry.id !== id));
         }
     } catch (err) {
       console.error('Error deleting entry - 324bcdl:', err)
@@ -44,9 +44,9 @@ function TimeDB({API_URL}) {
 
   return (
     <div className='main'>
-      {entries.map((entry)=>(
+      {timesheet.map((entry)=>(
         <div key={entry.id} className='entry'>
-          <h4 className='entry-date'>{entry.dateEntry}</h4>
+          <h4 className='entry-date'>{entry.date}</h4>
             
            <div className='job'>
               <h3 style={{placeSelf: 'start'}}>DAY Hours<br/>10</h3>
@@ -57,36 +57,22 @@ function TimeDB({API_URL}) {
                 <p>End: {
                   entry.endTime == '' ? '----' : entry.endTime
                   }</p>
-                <p>On-Site: {entry.entryHours} hrs</p>
+                <p>On-Site: {entry.onSiteHours} hrs</p>
               </div>
 
               <div className='job-info'>
                 <p>{entry.jobNumber}</p>
                 <p>{entry.reportNumber}</p>
                 <p>Travel: {entry.travelType}<button className='info-btn'>Show</button></p>
-                <p>{entry.mileage} mi</p>
-                <p>{entry.travelTime} hrs</p>
+                <p>{entry.milesToSite} mi</p>
+                <p>{entry.timeToSite} hrs</p>
               </div>
-              
-
+            
             <div className='entry-controls'>
               <button className='edit-btn'
                 onClick={edit_entry}
                 >Edit</button>
-              <Link to='/clock-out' state={{
-                date: entry.dateEntry,
-                job: entry.jobName,
-                jobNumber: entry.jobNumber,
-                reportNumber: entry.reportNumber,
-                startTime: entry.startTime,
-                endTime: entry.endTime,
-                service: entry.service,
-                travelType: entry.travelType,
-                fromLoc: entry.fromLoc,
-                toLoc: entry.toLoc,
-                mileage: entry.mileage,
-                travelTime: entry.travelTime
-                }}>
+              <Link to='/clock-out' state={{id: entry.id}}>
                 <button className='edit-btn'
                 style={{background: 'lightblue'}}
                 >
@@ -97,6 +83,7 @@ function TimeDB({API_URL}) {
                 style={{background: 'indianred'}}
                 onClick={edit_entry}
                 >Report</button>
+              <button className='danger-btn' onClick={()=>handleDelete(entry.id)}>Delete</button>
             </div> {/* close entry controls */}
           </div>
         </div> /* Close Entry */

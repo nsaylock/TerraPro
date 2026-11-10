@@ -5,8 +5,7 @@ import Travel from './Travel';
 import '../css/App.css';
 
 function ClockIn({BASE_URL}) {
-  const [timesheetDb, setTimesheetDb] = useState([]);
-  const [travelDb, setTravelDb] = useState([]);
+  const [timesheet, setTimesheet] = useState([]);
 
   // Timesheet DB
   const [jobName, setJobName] = useState('');
@@ -15,11 +14,8 @@ function ClockIn({BASE_URL}) {
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [entryHours, setEntryHours] = useState(0);
+  const [onSiteHours, setOnSiteHours] = useState(0);
   const [service, setService] = useState('');
-  const [sets, setSets] = useState('');
-
-  // Travel DB
   const [travelType, setTravelType] = useState('');
   const [toSiteStart, setToSiteStart] = useState('');
   const [toSiteEnd, setToSiteEnd] = useState('');
@@ -31,7 +27,7 @@ function ClockIn({BASE_URL}) {
   const [timeToSite, setTimeToSite] = useState(0);
   const [timeFromSite, setTimeFromSite] = useState(0);
   const [totalTravelTime, setTotalTravelTime] = useState('');
-  
+
   const [travelOpen, setTravelOpen] = useState(false); 
 
   useEffect(()=>{
@@ -42,18 +38,11 @@ function ClockIn({BASE_URL}) {
     try {
       const response = await fetch(`${BASE_URL}/timesheet`);
       const data = await response.json();
-      setTimesheetDb(data);
+      setTimesheet(data);
     } catch (error) {
       console.error('Error fetching timesheet:', error);
     }
 
-    try {
-      const response = await fetch(`${BASE_URL}/travel`);
-      const data = await response.json();
-      setTravelDb(data);
-    } catch (error) {
-      console.error('Error fetching travel:', error);
-    }
   }
 
   const handleSubmit = async(e)=> {
@@ -64,38 +53,27 @@ function ClockIn({BASE_URL}) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ 
           jobName, jobNumber, reportNumber, date, 
-          startTime, endTime, entryHours, service,
-          sets, cylinders
+          startTime, endTime, onSiteHours, service,
+          travelType, toSiteStart, toSiteEnd, fromSiteStart, 
+          fromSiteEnd, milesToSite, milesFromSite, totalMiles,
+          timeToSite, timeFromSite, totalTravelTime
         })
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to add new entry');
+        throw new Error(data.message || 'Failed to add new entry 0546');
       }
-      setTimesheetDb([...timesheetDb, data]);
+      setTimesheet([...timesheet, data]);
     } catch (error) {
       console.error(error.message);
     }
 
-    try {
-      const response = await fetch(`${BASE_URL}/travel`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
-          travelType, toSiteStart, toSiteEnd, fromSiteStart, fromSiteEnd,
-          milesToSite, milesFromSite, totalMiles, timeToSite,
-          timeFromSite, totalTravelTime
-        })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to add new entry');
-      }
-      setTravelDb([...travelDb, data]);
-    } catch (error) {
-      console.error(error.message);
-    }
   }
+
+  useEffect(()=>{
+    setTotalMiles(milesToSite);
+    setTotalTravelTime(timeToSite);
+  }, [milesToSite])
 
   // Maybe clear all fields
 
@@ -146,7 +124,6 @@ function ClockIn({BASE_URL}) {
           setTravelType(array[4])
         }} />
       </div>
-
       <button type='button'
         onClick={handleSubmit}
         >Submit</button>
