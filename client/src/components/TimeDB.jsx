@@ -72,7 +72,10 @@ function TimeDB({BASE_URL}) {
               <button className='edit-btn'
                 onClick={edit_entry}
                 >Edit</button>
-              <Link to='/clock-out' state={{id: entry.id}}>
+              <Link to='/clock-out' state={{
+                id: entry.id,
+                startTime: entry.startTime
+                }}>
                 <button className='edit-btn'
                 style={{background: 'lightblue'}}
                 >
