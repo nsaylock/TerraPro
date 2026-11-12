@@ -11,7 +11,8 @@ function MixCalculator() {
   const [glen7620, setGlen7620] = useState(null);
   const [xseed66, setXseed66] = useState(null);
   const [water, setWater] = useState(null);
-  const [unitWeight, setUnitWeight] = useState(null);
+  const [unitWeight, setUnitWeight] = useState(0);
+  const [concreteWeight, setConcreteWeight] = useState(0);
 
   const [totalWeight, setTotalWeight] = useState(0);
   const [wcRatio, setWCRatio] = useState(0);
@@ -40,12 +41,12 @@ function MixCalculator() {
     let temp = liquidWeight + stone + sand + cement + slag;
     setTotalWeight(temp);
     setWCRatio((liquidWeight/(cement+slag)).toFixed(2));
-    console.log(totalWeight)
+    setUnitWeight((concreteWeight - 8.2)*4);
     setYield1(parseFloat(temp/unitWeight/27).toFixed(2));
     let temp2 = (0.45 * (cement+slag) / 8.34) - (liquidWeight / 8.34);
     setMaxWater(temp2);
 
-  }, [batchSize, stone, sand, cement, slag, AEA, z60, glen7620, xseed66, water, unitWeight])
+  }, [batchSize, stone, sand, cement, slag, AEA, z60, glen7620, xseed66, water, concreteWeight])
 
   useEffect(()=>{
     if (hrwrMix == true) {
@@ -104,12 +105,15 @@ function MixCalculator() {
           style={{marginLeft: '1rem'}}/>No</span>
         <span></span>
         <span></span><span></span><br/>
-        <label>Unit Weight:</label>
-        <input type='number' onChange={(e)=>setUnitWeight(parseFloat(e.target.value, 10))}/>
-        <label>lbs/cuft</label>
+        <label>Concrete Weight:</label>
+        <input type='number' placeholder='Concrete + Bowl'
+        onChange={(e)=>setConcreteWeight(e.target.value)} />
+        <label>lbs</label>
+        
       </div> {/* Close mix-grid */}
       
       <span className='divide-line'></span>
+      <div>Unit Weight: <span className='result'>{unitWeight}</span> lbs/cuft</div>
       <div>Total Weight: <span className='result'> {totalWeight.toLocaleString('en-US')}</span> lbs</div>
       <div>W/C Ratio: 
         <span className='result'

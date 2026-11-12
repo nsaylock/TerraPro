@@ -99,7 +99,7 @@ function ClockIn({BASE_URL}) {
       <input type="text"
         onChange={(e)=>setJobName(e.target.value)}
         ></input>
-      <label>Job #:</label><input type='text' onChange={(e)=>setJobNumber(e.target.value)}/>
+      <label>Project #:</label><input type='text' onChange={(e)=>setJobNumber(e.target.value)}/>
       <label>Report #:</label><input type='text' onChange={(e)=>setReportNumber(e.target.value)} />
       <span style={{display: 'inline-block'}}><label>Service:</label></span>
 
