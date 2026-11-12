@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import TimeSelector from "./TimeSelector";
 import Travel from './Travel';
 
@@ -7,14 +7,17 @@ import Travel from './Travel';
 // Will need to be able to handle over night jobs
 
 function ClockOut({BASE_URL}) {
+  const location = useLocation(null);
+  const navigate = useNavigate();
+
   const [travelOpen, setTravelOpen] = useState(false);
   const [reverseTrip, setReverseTrip] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  const location = useLocation(null);
   const entryId = location.state?.id;
   const [entry, setEntry] = useState([]);
   const startTime = location.state?.startTime;
+  const service = location.state?.service;
 
   const [travelType, setTravelType] = useState('');
   const [milesFromSite, setMilesFromSite] = useState(0);
@@ -25,9 +28,11 @@ function ClockOut({BASE_URL}) {
   const [onSiteHours, setOnSiteHours] = useState(0);
   const [totalMiles, setTotalMiles] = useState(0);
   const [totalTravelTime, setTotalTravelTime] = useState(0);
+  const [sets, setSets] = useState(0);
+  const [samples, setSamples] = useState(0);
 
   const STArray = startTime.split(/[: ]/); // Start Time Array
-  const STHours = Number(STArray[0]);
+  let STHours = Number(STArray[0]);
   const STMins = Number(STArray[1]);
   if (STArray[2] === 'PM') STHours += 12;
 
@@ -49,7 +54,6 @@ function ClockOut({BASE_URL}) {
     setDataLoaded(true);
     setTotalMiles(entry.milesToSite);
     setTotalTravelTime(entry.timeToSite);
-    
   },[entry])
   
   useEffect(()=>{
@@ -64,23 +68,18 @@ function ClockOut({BASE_URL}) {
     if (tempArray[2] === 'PM' && tempArray[0] != 12) ETHours += 12;
     let elapsedHours = ETHours - STHours;
     let elapsedMins =  ETMins - STMins;
-    console.log('STMins ' + STMins)
-    console.log('ETMins ' + ETMins);
 
     if (elapsedMins < 0) {
       elapsedHours -= 1;
       if (ETMins === 0) {
         elapsedMins = 60 - STMins;
         calculatedHours = (elapsedHours + (elapsedMins/60)).toFixed(2);
-        console.log('if1: ' + calculatedHours)
       } else {
         elapsedMins = Math.abs(elapsedMins);
         calculatedHours = (elapsedHours + (1 - elapsedMins/60)).toFixed(2);
-        console.log('if2: ' + calculatedHours)
       }
     } else {
       calculatedHours = (elapsedHours + elapsedMins/60).toFixed(2);
-      console.log('if3: ' + calculatedHours)
     }
     setOnSiteHours(calculatedHours);
   }
@@ -120,20 +119,19 @@ function ClockOut({BASE_URL}) {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ 
-          endTime, onSiteHours,
-          travelType, toSiteEnd, fromSiteStart, 
+          endTime, onSiteHours, fromSiteStart, 
           fromSiteEnd, milesFromSite, totalMiles,
-          timeFromSite, totalTravelTime
-        })
+          timeFromSite, totalTravelTime, sets, samples })
       });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Failed to add new entry 0546');
       }
-      setTimesheet([...timesheet, data]);
     } catch (error) {
-      console.error(error.message);
+      console.error('Clock out crash out: ', error.message);
     }
+
+    navigate('/timeDB')
   }
 
 return (
@@ -150,10 +148,16 @@ return (
       <label>Start Time:</label>
       <p>{entry.startTime}</p>
       <label>End Time:</label>
-      <TimeSelector header='End Time' pullTimeData={(timeString)=>setEndTime(timeString)}/>
+      <TimeSelector header='Leave Site' pullTimeData={(timeString)=>setEndTime(timeString)}/>
       <label>On-Site:</label>
       <p>{onSiteHours} hrs</p>
-    </div> {/**Close clock out grid */}
+        {service === 'Concrete Testing' && <label>Cylinder Sets:</label> }
+        {service === 'Concrete Testing' && <input type='number' name='sets' id='sets' placeholder='Number of Sets'
+        onChange={(e)=>setSets(e.target.value)} />}
+        {service === 'Concrete Testing' && <label>Samples per Set:</label>}
+        {service === 'Concrete Testing' && <input type='number' name='samples' id='samples' placeholder='Number of Samples'
+        onChange={(e)=>setSamples(e.target.value)} />}
+    </div>                                          {/**Close clock out grid */}
     <h2 style={{marginTop: '10px'}}>Travel</h2>
     <div className='clock-in-grid'>
       <label>To Site:</label>
@@ -165,7 +169,7 @@ return (
       {reverseTrip === true && (
         <>
         <label>From Site:</label>
-        <p>{entry.toSiteStart + ' to ' + entry.toSiteEnd}</p>
+        <p>{entry.toSiteEnd + ' to ' + entry.toSiteStart}</p>
         </>
       )}
       <label>Total Miles:</label>

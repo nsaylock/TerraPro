@@ -30,10 +30,10 @@ function Travel({isOpen, travelData}) {
         <input type='text' name='end-loc' id='end-loc' placeholder='Ending Location'
           onChange={(e)=>setToLoc(e.target.value)}/>
         <label>Mileage:</label>
-        <input type='text' name='mileage' id='mileage' placeholder='Miles' 
+        <input type='number' name='mileage' id='mileage' placeholder='Miles' 
           onChange={(e)=>setMileage(e.target.value)}/>
         <label>Time:</label>
-        <input type='text' name='trav-time' id='trav-time' placeholder='Travel Time in hours' 
+        <input type='number' name='trav-time' id='trav-time' placeholder='Travel Time in hours' 
           onChange={(e)=>setTravelTime(e.target.value)}/>
       </form>
     </div>

@@ -39,7 +39,7 @@ timesheetDb.exec(`
     timeFromSite REAL,
     totalTravelTime REAL,
     sets INTEGER,
-    cylinders INTEGER,
+    samples INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `);

@@ -5,6 +5,7 @@ import '../css/data.css';
 
 function TimeDB({BASE_URL}) {
   const [timesheet, setTimesheet] = useState([]);
+  const [travelDetailsOpen, setTravelDetailsOpen] = useState(false);
 
   useEffect(()=>{
       fetchData();
@@ -42,14 +43,34 @@ function TimeDB({BASE_URL}) {
     alert('this button doesnt work yet lol')
   }
 
+  function get_day_of_week(dateString) {
+    const temp = dateString.split(/[//]/);
+    const month = temp[0];
+    const day = temp[1];
+    const year = '20' + temp[2];
+    const specificDate = new Date(`${year}-${month}-${day}T12:00:00`);
+    return specificDate.toLocaleDateString('en-US', {weekday: 'long'});
+  }
+
   return (
     <div className='main'>
       {timesheet.map((entry)=>(
         <div key={entry.id} className='entry'>
-          <h4 className='entry-date'>{entry.date}</h4>
+          <div className='title-bar'>
+            <h3 style={{marginRight: '10px'}}>{entry.date}</h3>
+            <h3>{get_day_of_week(entry.date)}</h3>
+          </div> 
             
            <div className='job'>
-              <h3 style={{placeSelf: 'start'}}>DAY Hours<br/>10</h3>
+              <div style={{textAlign: 'left'}}>
+                <h3 style={{placeSelf: 'start'}}>Hours<br/>{entry.onSiteHours + entry.totalTravelTime}<br/></h3>
+                {entry.sets !== null && (
+                  <>
+                  <h3>Samples</h3>
+                  <h3>{entry.sets + '(' + entry.samples + ')'}</h3>
+                  </>
+                )}
+              </div>
               <div className='job-info'>
                 <p><strong>{entry.jobName}</strong></p>
                 <p>{entry.service}</p>
@@ -61,11 +82,13 @@ function TimeDB({BASE_URL}) {
               </div>
 
               <div className='job-info'>
-                <p>{entry.jobNumber}</p>
-                <p>{entry.reportNumber}</p>
-                <p>Travel: {entry.travelType}<button className='info-btn'>Show</button></p>
-                <p>{entry.milesToSite} mi</p>
-                <p>{entry.timeToSite} hrs</p>
+                <p>Project: {entry.jobNumber}</p>
+                <p>Report: {entry.reportNumber}</p>
+                <p>Travel: {entry.travelType}
+                  <button className='info-btn' onClick={()=>setTravelDetailsOpen(true)}>Show</button>
+                </p>
+                <p>{entry.totalMiles} mi</p>
+                <p>{entry.totalTravelTime} hrs</p>
               </div>
             
             <div className='entry-controls'>
@@ -74,7 +97,8 @@ function TimeDB({BASE_URL}) {
                 >Edit</button>
               <Link to='/clock-out' state={{
                 id: entry.id,
-                startTime: entry.startTime
+                startTime: entry.startTime,
+                service: entry.service
                 }}>
                 <button className='edit-btn'
                 style={{background: 'lightblue'}}

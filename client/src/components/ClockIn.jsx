@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DateSelector from "./DateSelector";
 import TimeSelector from "./TimeSelector";
 import Travel from './Travel';
 import '../css/App.css';
 
 function ClockIn({BASE_URL}) {
+  const navigate = useNavigate();
   const [timesheet, setTimesheet] = useState([]);
 
   // Timesheet DB
@@ -26,7 +28,7 @@ function ClockIn({BASE_URL}) {
   const [totalMiles, setTotalMiles] = useState('');
   const [timeToSite, setTimeToSite] = useState(0);
   const [timeFromSite, setTimeFromSite] = useState(0);
-  const [totalTravelTime, setTotalTravelTime] = useState('');
+  const [totalTravelTime, setTotalTravelTime] = useState(0);
 
   const [travelOpen, setTravelOpen] = useState(false); 
 
@@ -68,12 +70,17 @@ function ClockIn({BASE_URL}) {
       console.error(error.message);
     }
 
+    navigate('/timeDB');
+
   }
 
   useEffect(()=>{
     setTotalMiles(milesToSite);
-    setTotalTravelTime(timeToSite);
-  }, [milesToSite])
+  }, [milesToSite]);
+
+  useEffect(()=>{
+    setTotalTravelTime(timeToSite)
+  },[timeToSite])
 
   // Maybe clear all fields
 
@@ -86,7 +93,7 @@ function ClockIn({BASE_URL}) {
       <DateSelector pullDateString={(dateString)=>setDate(dateString)}/>
       <label>Time:</label>
 
-      <TimeSelector header='Start Time' pullTimeData={(timeString)=>setStartTime(timeString)} />
+      <TimeSelector header='Arrival to Site' pullTimeData={(timeString)=>setStartTime(timeString)} />
 
       <span style={{display: 'inline-block'}}><label>Job Name:</label></span>
       <input type="text"
