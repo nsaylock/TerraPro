@@ -29,7 +29,7 @@ function ClockOut({BASE_URL}) {
   const [totalMiles, setTotalMiles] = useState(0);
   const [totalTravelTime, setTotalTravelTime] = useState(0);
   const [sets, setSets] = useState(0);
-  const [samples, setSamples] = useState(0);
+  const [setSize, setSetSize] = useState(0);
 
   const STArray = startTime.split(/[: ]/); // Start Time Array
   let STHours = Number(STArray[0]);
@@ -142,9 +142,9 @@ return (
       <p>{entry.date}</p>
       
       <label>Job Name:</label>
-      <p>{entry.jobName}</p>
+      <p>{entry.projectName}</p>
       <label>Job Number:</label>
-      <p>{entry.jobNumber}</p>
+      <p>{entry.projectNumber}</p>
       <label>Start Time:</label>
       <p>{entry.startTime}</p>
       <label>End Time:</label>
@@ -156,7 +156,7 @@ return (
         onChange={(e)=>setSets(e.target.value)} />}
         {service === 'Concrete Testing' && <label>Samples per Set:</label>}
         {service === 'Concrete Testing' && <input type='number' name='samples' id='samples' placeholder='Number of Samples'
-        onChange={(e)=>setSamples(e.target.value)} />}
+        onChange={(e)=>setSetSize(e.target.value)} />}
     </div>                                          {/**Close clock out grid */}
     <h2 style={{marginTop: '10px'}}>Travel</h2>
     <div className='clock-in-grid'>

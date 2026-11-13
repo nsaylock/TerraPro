@@ -14,13 +14,14 @@ return db;
 }
 
 const timesheetDb = createDB('timesheet', 'timesheet.db');
+const samplesDb = createDB('samples', 'samples.db')
 
 // Initialize schemas
 timesheetDb.exec(`
   CREATE TABLE IF NOT EXISTS timesheet (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    jobName TEXT,
-    jobNumber TEXT,
+    projectName TEXT,
+    projectNumber TEXT,
     reportNumber TEXT,
     date TEXT NOT NULL,
     startTime TEXT NOT NULL,
@@ -37,11 +38,24 @@ timesheetDb.exec(`
     totalMiles INTEGER,
     timeToSite REAL,
     timeFromSite REAL,
-    totalTravelTime REAL,
-    sets INTEGER,
-    samples INTEGER,
+    totalTravelTime REAL
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+samplesDb.exec(`
+  CREATE TABLE IF NOT EXISTS samples (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  projectName TEXT NOT NULL,
+  projectNumber TEXT NOT NULL,
+  reportNumber TEXT NOT NULL,
+  date TEXT NOT NULL,
+  sampleType TEXT NOT NULL,
+  sets INTEGER,
+  setSize INTEGER,
+  employee TEXT,
+  storageLocation TEXT
+  )
+  `);
 
 module.exports = { timesheetDb };

@@ -10,8 +10,8 @@ function ClockIn({BASE_URL}) {
   const [timesheet, setTimesheet] = useState([]);
 
   // Timesheet DB
-  const [jobName, setJobName] = useState('');
-  const [jobNumber, setJobNumber] = useState('');
+  const [projectName, setprojectName] = useState('');
+  const [projectNumber, setprojectNumber] = useState('');
   const [reportNumber, setReportNumber] = useState('');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -54,7 +54,7 @@ function ClockIn({BASE_URL}) {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ 
-          jobName, jobNumber, reportNumber, date, 
+          projectName, projectNumber, reportNumber, date, 
           startTime, endTime, onSiteHours, service,
           travelType, toSiteStart, toSiteEnd, fromSiteStart, 
           fromSiteEnd, milesToSite, milesFromSite, totalMiles,
@@ -97,9 +97,9 @@ function ClockIn({BASE_URL}) {
 
       <span style={{display: 'inline-block'}}><label>Job Name:</label></span>
       <input type="text"
-        onChange={(e)=>setJobName(e.target.value)}
+        onChange={(e)=>setprojectName(e.target.value)}
         ></input>
-      <label>Project #:</label><input type='text' onChange={(e)=>setJobNumber(e.target.value)}/>
+      <label>Project #:</label><input type='text' onChange={(e)=>setprojectNumber(e.target.value)}/>
       <label>Report #:</label><input type='text' onChange={(e)=>setReportNumber(e.target.value)} />
       <span style={{display: 'inline-block'}}><label>Service:</label></span>
 

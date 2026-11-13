@@ -72,7 +72,7 @@ function TimeDB({BASE_URL}) {
                 )}
               </div>
               <div className='job-info'>
-                <p><strong>{entry.jobName}</strong></p>
+                <p><strong>{entry.projectName}</strong></p>
                 <p>{entry.service}</p>
                 <p>Start: {entry.startTime}</p>
                 <p>End: {
@@ -82,7 +82,7 @@ function TimeDB({BASE_URL}) {
               </div>
 
               <div className='job-info'>
-                <p>Project: {entry.jobNumber}</p>
+                <p>Project: {entry.projectNumber}</p>
                 <p>Report: {entry.reportNumber}</p>
                 <p>Travel: {entry.travelType}
                   <button className='info-btn' onClick={()=>setTravelDetailsOpen(true)}>Show</button>
