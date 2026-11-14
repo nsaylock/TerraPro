@@ -31,7 +31,7 @@ function ClockOut({BASE_URL}) {
   const [totalMiles, setTotalMiles] = useState(0);
   const [totalTravelTime, setTotalTravelTime] = useState(0);
 
-  const [sampleType, setSampleType] = useState('');
+  const [sampleType, setSampleType] = useState('4"x8" Cylinder');
   const [sets, setSets] = useState(0);
   const [setSize, setSetSize] = useState(0);
   const employee = 'Nick Saylock';
@@ -43,7 +43,7 @@ function ClockOut({BASE_URL}) {
   const STArray = startTime.split(/[: ]/); // Start Time Array
   let STHours = Number(STArray[0]);
   const STMins = Number(STArray[1]);
-  if (STArray[2] === 'PM') STHours += 12;
+  if (STArray[2] === 'PM' && STHours !== 12) STHours += 12;
 
   useEffect(()=>{
     fetchEntry();
@@ -85,7 +85,7 @@ function ClockOut({BASE_URL}) {
     let tempArray = endTime.split(/[: ]/);
     let ETHours = Number(tempArray[0]);
     let ETMins = Number(tempArray[1]);
-    if (tempArray[2] === 'PM' && tempArray[0] != 12) ETHours += 12;
+    if (tempArray[2] === 'PM' && tempArray[0] !== 12) ETHours += 12;
     let elapsedHours = ETHours - STHours;
     let elapsedMins =  ETMins - STMins;
 
@@ -163,7 +163,7 @@ function ClockOut({BASE_URL}) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           projectName, projectNumber, reportNumber,
-          date, sampleType, sets, setSize, employee,
+          castDate, sampleType, sets, setSize, employee,
           storageLocation, pickUpDate, dropOffLocation
       })
       });

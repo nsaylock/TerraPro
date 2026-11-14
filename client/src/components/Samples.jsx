@@ -8,7 +8,7 @@ function Samples({BASE_URL}) {
     try {
       const response = await fetch(`${BASE_URL}/samples`);
       const data = await response.json();
-      console.log(data)
+      console.log(data.castDate)
       setSamplesTable(data);
       
     } catch (error) {
@@ -24,10 +24,10 @@ function Samples({BASE_URL}) {
   return (
     <div className='samples-list'>
       <div className='samples-list-row'>
+        <h6 className='cell'>Cast Date</h6>
         <h6 className='cell'>Project Name</h6>
         <h6 className='cell'>Project #</h6>
         <h6 className='cell'>Report #</h6>
-        <h6 className='cell'>Cast Date</h6>
         <h6 className='cell'>Sample Type</h6>
         <h6 className='cell'>Sets</h6>
         <h6 className='cell'>Set Size</h6>
@@ -38,10 +38,10 @@ function Samples({BASE_URL}) {
       </div>
       {samplesTable.map((row)=>(
         <div className='samples-list-row'>
-          <p className='cell'>{row.projectName}</p>
-          <p className='cell'>{row.projecNumber}</p>
-          <p className='cell'>{row.reportNumber}</p>
           <p className='cell'>{row.castDate}</p>
+          <p className='cell'>{row.projectName}</p>
+          <p className='cell'>{row.projectNumber}</p>
+          <p className='cell'>{row.reportNumber}</p>
           <p className='cell'>{row.sampleType}</p>
           <p className='cell'>{row.sets}</p>
           <p className='cell'>{row.setSize}</p>

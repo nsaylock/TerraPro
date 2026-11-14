@@ -319,6 +319,7 @@ button {
   border: 1px solid red;
   width: 95vw;
   display: flex;
+  flex-direction: column;
   position: relative;
   justify-self: center;
 }
@@ -326,10 +327,11 @@ button {
 .samples-list-row {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
-  line-height: 15px;
+  line-height: 18px;
 }
 
 .cell {
+  font-size: 12px;
   border-style:solid;
   border-color: black;
   border-width: 1px 1px;
