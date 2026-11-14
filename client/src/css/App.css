@@ -299,5 +299,38 @@ label {
   margin: 1rem 0;
 }
 
+.nav-link-btns {
+  display: flex;
+  justify-self: center;
+}
 
+.nav-link-btns > * {
+  margin-left: 10px;
+}
 
+button {
+  padding: 2px 5px;
+  border-radius: 15px;
+  border-width: 1px;
+}
+
+.samples-list {
+  margin-top: 20px;
+  border: 1px solid red;
+  width: 95vw;
+  display: flex;
+  position: relative;
+  justify-self: center;
+}
+
+.samples-list-row {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  line-height: 15px;
+}
+
+.cell {
+  border-style:solid;
+  border-color: black;
+  border-width: 1px 1px;
+}

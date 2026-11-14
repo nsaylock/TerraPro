@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import '../css/App.css'
 
 function Travel({isOpen, travelData}) {
-  if(!isOpen) return null;
   const [fromLoc, setFromLoc] = useState('');
   const [toLoc, setToLoc] = useState('');
   const [mileage, setMileage] = useState('');
@@ -12,6 +11,9 @@ function Travel({isOpen, travelData}) {
   useEffect(()=> {
     travelData([fromLoc, toLoc, mileage, travelTime, travelType])
   }, [fromLoc, toLoc, mileage, travelTime, travelType]);
+
+  if(!isOpen) return null;
+
 
   return(
     <div className='main' style={{padding: '0'}}>

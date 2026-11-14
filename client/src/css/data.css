@@ -66,11 +66,7 @@
   justify-content: start;
 }
 
-.cell {
-  border-style:dashed;
-  border-color: black;
-  border-width: 0 1px;
-}
+
 .danger, .edit-btn, .big-btn {
   background: #ff4d4d;
   color: white;

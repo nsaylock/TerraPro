@@ -14,7 +14,7 @@ return db;
 }
 
 const timesheetDb = createDB('timesheet', 'timesheet.db');
-const samplesDb = createDB('samples', 'samples.db')
+const samplesDb = createDB('samples', 'samples.db');
 
 // Initialize schemas
 timesheetDb.exec(`
@@ -49,13 +49,15 @@ samplesDb.exec(`
   projectName TEXT NOT NULL,
   projectNumber TEXT NOT NULL,
   reportNumber TEXT NOT NULL,
-  date TEXT NOT NULL,
+  castDate TEXT NOT NULL,
   sampleType TEXT NOT NULL,
   sets INTEGER,
   setSize INTEGER,
   employee TEXT,
-  storageLocation TEXT
+  storageLocation TEXT,
+  pickUpDate TEXT,
+  dropOffLocation TEXT
   )
   `);
 
-module.exports = { timesheetDb };
+module.exports = { timesheetDb, samplesDb };

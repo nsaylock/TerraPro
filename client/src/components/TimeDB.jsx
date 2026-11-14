@@ -63,13 +63,7 @@ function TimeDB({BASE_URL}) {
             
            <div className='job'>
               <div style={{textAlign: 'left'}}>
-                <h3 style={{placeSelf: 'start'}}>Hours<br/>{entry.onSiteHours + entry.totalTravelTime}<br/></h3>
-                {entry.sets !== null && (
-                  <>
-                  <h3>Samples</h3>
-                  <h3>{entry.sets + '(' + entry.samples + ')'}</h3>
-                  </>
-                )}
+                <h3 style={{placeSelf: 'start'}}>Hours<br/>{Number(entry.onSiteHours) + Number(entry.totalTravelTime)}<br/></h3>
               </div>
               <div className='job-info'>
                 <p><strong>{entry.projectName}</strong></p>

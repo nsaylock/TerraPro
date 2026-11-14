@@ -11,11 +11,13 @@ function ClockOut({BASE_URL}) {
   const navigate = useNavigate();
 
   const [travelOpen, setTravelOpen] = useState(false);
+  const [samplesFormOpen, setSamplesFormOpen] = useState(false);
   const [reverseTrip, setReverseTrip] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
 
   const entryId = location.state?.id;
   const [entry, setEntry] = useState([]);
+  const [samples, setSamples] = useState([]);
   const startTime = location.state?.startTime;
   const service = location.state?.service;
 
@@ -28,8 +30,15 @@ function ClockOut({BASE_URL}) {
   const [onSiteHours, setOnSiteHours] = useState(0);
   const [totalMiles, setTotalMiles] = useState(0);
   const [totalTravelTime, setTotalTravelTime] = useState(0);
+
+  const [sampleType, setSampleType] = useState('');
   const [sets, setSets] = useState(0);
   const [setSize, setSetSize] = useState(0);
+  const employee = 'Nick Saylock';
+  const [storageLocation, setStorageLocation] = useState('');
+  const pickUpDate = null;
+  const dropOffLocation = null;
+  
 
   const STArray = startTime.split(/[: ]/); // Start Time Array
   let STHours = Number(STArray[0]);
@@ -38,6 +47,7 @@ function ClockOut({BASE_URL}) {
 
   useEffect(()=>{
     fetchEntry();
+    fetchSamplesTable();
   },[])
 
   const fetchEntry = async () => {
@@ -47,6 +57,16 @@ function ClockOut({BASE_URL}) {
       setEntry(data);
     } catch (error) {
       console.log('Error fetching entry: ', error.message)
+    }
+  }
+
+  const fetchSamplesTable = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/samples`);
+      const data = await response.json();
+      setSamples(data);
+    } catch (error) {
+      console.error('Error fetching samples table: ', error.message);
     }
   }
 
@@ -114,21 +134,42 @@ function ClockOut({BASE_URL}) {
 
   const handle_clock_out = async (e) => {
     e.preventDefault();
+    let projectName = entry.projectName;
+    let projectNumber = entry.projectNumber;
+    let reportNumber = entry.reportNumber;
+    let castDate = entry.date;
+
+
     try {
       const response = await fetch(`${BASE_URL}/timesheet/${entryId}`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           endTime, onSiteHours, fromSiteStart, 
           fromSiteEnd, milesFromSite, totalMiles,
-          timeFromSite, totalTravelTime, sets, samples })
-      });
+          timeFromSite, totalTravelTime })
+    });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Failed to add new entry 0546');
       }
     } catch (error) {
       console.error('Clock out crash out: ', error.message);
+    }
+
+    try {
+      const samplesResponse = await fetch(`${BASE_URL}/samples`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          projectName, projectNumber, reportNumber,
+          date, sampleType, sets, setSize, employee,
+          storageLocation, pickUpDate, dropOffLocation
+      })
+      });
+
+    } catch (error) {
+      console.error('Error fetching samples table: ', error.message);
     }
 
     navigate('/timeDB')
@@ -140,24 +181,44 @@ return (
     <div className='clock-in-grid'>
       <label>Date:</label>
       <p>{entry.date}</p>
-      
-      <label>Job Name:</label>
-      <p>{entry.projectName}</p>
-      <label>Job Number:</label>
-      <p>{entry.projectNumber}</p>
-      <label>Start Time:</label>
-      <p>{entry.startTime}</p>
+      <label>Job Name:</label><p>{entry.projectName}</p>
+      <label>Job Number:</label><p>{entry.projectNumber}</p>
+      <label>Start Time:</label><p>{entry.startTime}</p>
       <label>End Time:</label>
       <TimeSelector header='Leave Site' pullTimeData={(timeString)=>setEndTime(timeString)}/>
-      <label>On-Site:</label>
-      <p>{onSiteHours} hrs</p>
-        {service === 'Concrete Testing' && <label>Cylinder Sets:</label> }
-        {service === 'Concrete Testing' && <input type='number' name='sets' id='sets' placeholder='Number of Sets'
-        onChange={(e)=>setSets(e.target.value)} />}
-        {service === 'Concrete Testing' && <label>Samples per Set:</label>}
-        {service === 'Concrete Testing' && <input type='number' name='samples' id='samples' placeholder='Number of Samples'
-        onChange={(e)=>setSetSize(e.target.value)} />}
-    </div>                                          {/**Close clock out grid */}
+      <label>On-Site:</label><p>{onSiteHours} hrs</p>
+      {service === 'Concrete Testing' && (
+        <label>Include Strength Specimens?</label>
+      )}
+      {service === 'Concrete Testing' && (
+        <span>
+          <input type='radio' name='samples-question' onChange={()=>setSamplesFormOpen(true)} />
+          Yes
+          <input type='radio' name='samples-question' onChange={()=>setSamplesFormOpen(false)} style={{marginLeft: '10px'}} />
+          No
+        </span>
+      )}
+      
+
+
+
+
+
+    </div> {/**Close clock out grid */}
+    {samplesFormOpen === true && (
+        <div className='clock-in-grid'>
+          <label>Sample Type:</label>
+          <select value={sampleType} onChange={(option)=>setSampleType(option.target.value)}>
+            <option value={'4"x8" Cylinder'}>4"x8" Cylinder</option>
+            <option value={'6"x12" Cylinder'}>6"x12" Cylinder</option>
+            <option value={'Grout Cube'}>Grout Cube</option>
+          </select>
+          <label>Sets:</label><input type='integer' onChange={(e)=>setSets(e.target.value)} placeholder='Number of Sets' />
+          <label>Set Size:</label><input type='integer' onChange={(e)=>setSetSize(e.target.value)} placeholder='Samples per Set' />
+          <label>Storage Location:</label><input type='text' onChange={(e)=>setStorageLocation(e.target.value)} />
+        </div>
+      )}
+
     <h2 style={{marginTop: '10px'}}>Travel</h2>
     <div className='clock-in-grid'>
       <label>To Site:</label>
