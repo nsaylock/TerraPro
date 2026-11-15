@@ -56,6 +56,8 @@ samplesDb.exec(`
   employee TEXT,
   storageLocation TEXT,
   pickUpDate TEXT,
+  pickUpTime TEXT,
+  pickUpEmployee TEXT,
   dropOffLocation TEXT
   )
   `);

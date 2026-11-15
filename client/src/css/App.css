@@ -314,25 +314,73 @@ button {
   border-width: 1px;
 }
 
-.samples-list {
-  margin-top: 20px;
+/* Samples Page $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  */
+
+.samples-container {
+  padding: 20px;
   border: 1px solid red;
-  width: 95vw;
+  width: 90vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.samples-card {
+  background-color: white;
+  border: 3px solid black;
+  border-radius: 20px;
+  margin-top: 10px;
+}
+
+.samples-list {
   display: flex;
   flex-direction: column;
   position: relative;
+  width: 100%;
   justify-self: center;
 }
 
-.samples-list-row {
-  display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  line-height: 18px;
+.samples-list-info > *,
+.samples-location > * {
+  border: 1px solid black;
+  border-width: 0 0 1px 0;
 }
 
-.cell {
-  font-size: 12px;
-  border-style:solid;
+.samples-list-grid > :nth-child(odd) {
+  border-style: solid;
+  border-width: 0 1px 0 0;
   border-color: black;
-  border-width: 1px 1px;
+}
+
+.samples-list-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  line-height: 22px;
+}
+
+.samples-list-info {
+  display: grid;
+  grid-template-columns: 1.3fr 2fr;
+  width: 100%;
+}
+
+.samples-list-info > :nth-child(odd),
+.samples-location > :nth-child(odd) {
+  text-align: end;
+  padding-right: 5px;
+  border-style: solid;
+  border-width: 0 1px 1px 0;
+  border-color: black;
+}
+
+.samples-list-info > :nth-child(even),
+.samples-location > :nth-child(even) {
+  text-align: start;
+  padding-left: 5px;
+}
+
+.samples-location {
+  outline: 1px solid black;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
 }

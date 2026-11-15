@@ -16,9 +16,7 @@ function App() {
 
   return(
     <div className='app-main'>
-      <button type='button' className='check-width' onClick={()=>check_width()}>
-        Check Width
-      </button>
+      
       <nav className='nav-link-btns'>
         <Link to='/timeDB'><button>Time DB</button></Link>
         <Link to='/'><button>Clock In</button></Link>

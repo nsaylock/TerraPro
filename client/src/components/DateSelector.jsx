@@ -20,7 +20,7 @@ function DateSelector({pullDateString}) {
     ) : (
       pullDateString(month + '/' + day + '/' + year.toString().slice(2,4))
     )
-  }, [])
+  }, [month, day, year])
 
   function change_month(action) {
     if (action == 'increase') {

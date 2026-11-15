@@ -4,7 +4,7 @@ const router = express.Router();
 
 // Prepare statements once
 const stmts = {
-  all: timesheetDb.prepare('SELECT * FROM timesheet ORDER BY id'),
+  all: timesheetDb.prepare('SELECT * FROM timesheet ORDER BY date'),
   get: timesheetDb.prepare('SELECT * FROM timesheet WHERE id = ?'),
   insert: timesheetDb.prepare(`INSERT INTO timesheet (
     projectName, projectNumber, reportNumber, date, startTime, endTime,

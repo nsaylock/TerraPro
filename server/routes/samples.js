@@ -4,7 +4,7 @@ const router = express.Router();
 
 // Prepare statements once
 const stmts = {
-  all: samplesDb.prepare('SELECT * FROM samples ORDER BY id'),
+  all: samplesDb.prepare('SELECT * FROM samples ORDER BY castDate'),
   get: samplesDb.prepare('SELECT * FROM samples WHERE id = ?'),
   insert: samplesDb.prepare(`INSERT INTO samples (
     projectName,
@@ -17,21 +17,16 @@ const stmts = {
     employee,
     storageLocation,
     pickUpDate,
+    pickUpTime,
+    pickUpEmployee,
     dropOffLocation
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
   update: samplesDb.prepare(`UPDATE samples 
     SET 
-    projectName = ?,
-    projectNumber = ?,
-    reportNumber = ?,
-    castDate = ?,
-    sampleType = ?,
-    sets = ?,
-    setSize = ?, 
-    employee = ?,
-    storageLocation = ?,
     pickUpDate = ?,
+    pickUpTime = ?,
+    pickUpEmployee = ?,
     dropOffLocation = ?
     WHERE id = ?`),
     remove: samplesDb.prepare('DELETE FROM samples WHERE id = ?'),
@@ -62,6 +57,8 @@ router.post('/', (req, res, next) => {
       employee,
       storageLocation,
       pickUpDate,
+      pickUpTime,
+      pickUpEmployee,
       dropOffLocation
     } = req.body;
     if (!castDate || !projectNumber) return res.status(400).json({ error: 'Date and Project Number required' });
@@ -76,6 +73,8 @@ router.post('/', (req, res, next) => {
       employee,
       storageLocation,
       pickUpDate,
+      pickUpTime,
+      pickUpEmployee,
       dropOffLocation
     );
     res.status(201).json({ 
@@ -90,6 +89,8 @@ router.post('/', (req, res, next) => {
       employee,
       storageLocation,
       pickUpDate,
+      pickUpTime,
+      pickUpEmployee,
       dropOffLocation
     });
   } catch (err) { next(err); }
@@ -108,6 +109,8 @@ router.put('/:id', (req, res, next) => {
       employee,
       storageLocation,
       pickUpDate,
+      pickUpTime,
+      pickUpEmployee,
       dropOffLocation
     } = req.body;
     const sample = stmts.update.run(
@@ -121,6 +124,8 @@ router.put('/:id', (req, res, next) => {
       employee,
       storageLocation,
       pickUpDate,
+      pickUpTime,
+      pickUpEmployee,
       dropOffLocation,
       req.params.id
     );
@@ -137,6 +142,8 @@ router.put('/:id', (req, res, next) => {
       employee,
       storageLocation,
       pickUpDate,
+      pickUpTime,
+      pickUpEmployee,
       dropOffLocation
      });
   } catch (err) { next(err); }

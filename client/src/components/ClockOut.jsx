@@ -37,6 +37,8 @@ function ClockOut({BASE_URL}) {
   const employee = 'Nick Saylock';
   const [storageLocation, setStorageLocation] = useState('');
   const pickUpDate = null;
+  const pickUpTime = null;
+  const pickUpEmployee = null;
   const dropOffLocation = null;
   
 
@@ -164,7 +166,8 @@ function ClockOut({BASE_URL}) {
         body: JSON.stringify({
           projectName, projectNumber, reportNumber,
           castDate, sampleType, sets, setSize, employee,
-          storageLocation, pickUpDate, dropOffLocation
+          storageLocation, pickUpDate, pickUpTime,
+          pickUpEmployee, dropOffLocation
       })
       });
 
