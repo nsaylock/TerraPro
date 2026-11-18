@@ -7,19 +7,45 @@ function TimeDB({BASE_URL}) {
   const [timesheet, setTimesheet] = useState([]);
   const [travelDetailsOpen, setTravelDetailsOpen] = useState(false);
 
+  function getPeriod() {
+    const sunday = new Date();
+    sunday.setDate(sunday.getDate() - sunday.getDay());
+    const start = formatDate(sunday);
+
+    const saturday = new Date();
+    saturday.setDate(sunday.getDate() + 6);
+    const end = formatDate(saturday);
+
+    return {start: start, end: end};
+  }
+
+  const period = getPeriod();
+
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}-${month}-${day}`;
+  }
+
+
   useEffect(()=>{
       fetchData();
     }, []);
+
   
   const fetchData = async () => {
+    const url = new URL(`${BASE_URL}/timesheet/period`);
+    url.searchParams.append('periodStart', period.start);
+    url.searchParams.append('periodEnd', period.end);
     try {
-      const response = await fetch(`${BASE_URL}/timesheet`);
+      const response = await fetch(url);
       const data = await response.json();
+      console.log(data[0])
       setTimesheet(data);
     } catch (error) {
       console.log('Error fetching timesheet:', error.message);
     }
-
   }
 
     // 3. Handle deleting a user
@@ -43,13 +69,23 @@ function TimeDB({BASE_URL}) {
     alert('this button doesnt work yet lol')
   }
 
+function getUIDate(dateString) {
+  const {month, day, year} = splitDateString(dateString);
+  return (month + '/' + day + '/' + year.slice(2))
+}
+
   function get_day_of_week(dateString) {
-    const temp = dateString.split(/[//]/);
-    const month = temp[0];
-    const day = temp[1];
-    const year = '20' + temp[2];
+    const {month, day, year} = splitDateString(dateString);
     const specificDate = new Date(`${year}-${month}-${day}T12:00:00`);
     return specificDate.toLocaleDateString('en-US', {weekday: 'long'});
+  }
+
+  function splitDateString(dateString) {
+    const temp = dateString.split(/[--]/);
+    const year = temp[0];
+    const month = temp[1];
+    const day = temp[2];
+    return {month, day, year};
   }
 
   return (
@@ -57,7 +93,7 @@ function TimeDB({BASE_URL}) {
       {timesheet.map((entry)=>(
         <div key={entry.id} className='entry'>
           <div className='title-bar'>
-            <h3 style={{marginRight: '10px'}}>{entry.date}</h3>
+            <h3 style={{marginRight: '10px'}}>{getUIDate(entry.date)}</h3>
             <h3>{get_day_of_week(entry.date)}</h3>
           </div> 
             

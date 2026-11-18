@@ -90,7 +90,8 @@ function ClockIn({BASE_URL}) {
 
       <div className='clock-in-grid'>
       <label>Date:</label>
-      <DateSelector pullDateString={(dateString)=>setDate(dateString)}/>
+      <DateSelector pullDateString={(dateString)=>setDate(dateString)}
+        allowEdit={true}/>
       <label>Time:</label>
 
       <TimeSelector header='Arrival to Site' pullTimeData={(timeString)=>setStartTime(timeString)} />

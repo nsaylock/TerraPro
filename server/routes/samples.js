@@ -99,30 +99,12 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
   try {
     const {
-      projectName,
-      projectNumber,
-      reportNumber,
-      castDate,
-      sampleType,
-      sets,
-      setSize,
-      employee,
-      storageLocation,
       pickUpDate,
       pickUpTime,
       pickUpEmployee,
       dropOffLocation
     } = req.body;
     const sample = stmts.update.run(
-      projectName,
-      projectNumber,
-      reportNumber,
-      castDate,
-      sampleType,
-      sets,
-      setSize,
-      employee,
-      storageLocation,
       pickUpDate,
       pickUpTime,
       pickUpEmployee,
@@ -132,15 +114,6 @@ router.put('/:id', (req, res, next) => {
     if (sample.changes === 0) return res.status(404).json({ error: 'Entry not found' });
     res.json({
       id: Number(req.params.id), 
-      projectName,
-      projectNumber,
-      reportNumber,
-      castDate,
-      sampleType,
-      sets,
-      setSize,
-      employee,
-      storageLocation,
       pickUpDate,
       pickUpTime,
       pickUpEmployee,

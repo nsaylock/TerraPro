@@ -87,7 +87,7 @@ function ClockOut({BASE_URL}) {
     let tempArray = endTime.split(/[: ]/);
     let ETHours = Number(tempArray[0]);
     let ETMins = Number(tempArray[1]);
-    if (tempArray[2] === 'PM' && tempArray[0] !== 12) ETHours += 12;
+    if (tempArray[2] === 'PM' && tempArray[0] != 12) ETHours += 12;
     let elapsedHours = ETHours - STHours;
     let elapsedMins =  ETMins - STMins;
 

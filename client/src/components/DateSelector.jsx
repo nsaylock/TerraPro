@@ -3,7 +3,7 @@ import Modal from './Modal';
 import '../css/App.css';
 import '../css/TimeSelector.css';
 
-function DateSelector({pullDateString}) {
+function DateSelector({pullDateString, allowEdit}) {
   const monthNow = new Date(Date.now()).getMonth() + 1;
   const dayNow = new Date(Date.now()).getDate();
   const yearNow = new Date(Date.now()).getFullYear()
@@ -16,9 +16,9 @@ function DateSelector({pullDateString}) {
 
   useEffect(()=> {
     day.toString().length == 1 ? (
-    pullDateString(month + '/0' + day + '/' + year.toString().slice(2, 4))
+    pullDateString(year + '-' + month + '-0' + day)
     ) : (
-      pullDateString(month + '/' + day + '/' + year.toString().slice(2,4))
+      pullDateString(year + '-' + month + '-' + day)
     )
   }, [month, day, year])
 
@@ -89,8 +89,12 @@ function DateSelector({pullDateString}) {
      + ' / ' + 
       (day.toString().length==1?day.toString().padStart(2, '0'):day)
      + ' / ' + year}
+     {allowEdit == true && (
+     <span>
       <button className='edit-btn' onClick={()=>setModalOpen(true)}>Edit</button>
       <button className='edit-btn' onClick={()=>setDateToday()}>Today</button>
+    </span>
+     )}
     </div>
 
     {/**Inside MODAL */}

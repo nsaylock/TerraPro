@@ -6,6 +6,11 @@ const router = express.Router();
 const stmts = {
   all: timesheetDb.prepare('SELECT * FROM timesheet ORDER BY date'),
   get: timesheetDb.prepare('SELECT * FROM timesheet WHERE id = ?'),
+  queryByDate: timesheetDb.prepare(`
+      SELECT * FROM timesheet
+      WHERE date >= ? AND date <= ?
+      ORDER BY date ASC
+    `),
   insert: timesheetDb.prepare(`INSERT INTO timesheet (
     projectName, projectNumber, reportNumber, date, startTime, endTime,
     onSiteHours, service, travelType, toSiteStart, toSiteEnd,
@@ -27,8 +32,21 @@ const stmts = {
   remove: timesheetDb.prepare('DELETE FROM timesheet WHERE id = ?'),
 };
 
-router.get('/', (req, res) => {
-  res.json(stmts.all.all());
+router.get('/period', async (req, res) => {
+  const {periodStart, periodEnd} = req.query;
+
+  if (!periodStart || !periodEnd) {
+    return res.status(400).json({error: 'period start and period end are required'});
+  }
+
+  try {
+    const response = await stmts.queryByDate.all(periodStart, periodEnd);
+    res.json(response);
+  } catch (err) {
+    console.error('Database query failed', err);
+    res.status(500).json({error: 'Internal server error'});
+  }
+
 });
 
 router.get('/:id', (req, res, next) => {
