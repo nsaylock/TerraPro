@@ -32,6 +32,16 @@ const stmts = {
   remove: timesheetDb.prepare('DELETE FROM timesheet WHERE id = ?'),
 };
 
+router.get('/', (req, res) => {
+  try {
+    const timesheet = stmts.all.all();
+    res.json(timesheet);
+  } catch (err) {
+    console.error('Failed to fetch Timesheet');
+    res.status(500);
+  }
+})
+
 router.get('/period', async (req, res) => {
   const {periodStart, periodEnd} = req.query;
 

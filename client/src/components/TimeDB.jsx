@@ -1,15 +1,18 @@
 import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import '../css/data.css';
 
 
 function TimeDB({BASE_URL}) {
   const [timesheet, setTimesheet] = useState([]);
   const [travelDetailsOpen, setTravelDetailsOpen] = useState(false);
+  const [seek, setSeek] = useState(0);
+
+  let period = getPeriod();
 
   function getPeriod() {
     const sunday = new Date();
-    sunday.setDate(sunday.getDate() - sunday.getDay());
+    const offset = seek * 7;
+    sunday.setDate(sunday.getDate() - sunday.getDay() + offset);
     const start = formatDate(sunday);
 
     const saturday = new Date();
@@ -19,22 +22,23 @@ function TimeDB({BASE_URL}) {
     return {start: start, end: end};
   }
 
-  const period = getPeriod();
-
   function formatDate(date) {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    return `${year}-${month}-${day}`;
+    let formattedDate;
+    if (day.toString().length == 1) formattedDate = `${year}-${month}-0${day}`;
+    else formattedDate = `${year}-${month}-${day}`
+    return formattedDate;
   }
 
-
   useEffect(()=>{
-      fetchData();
-    }, []);
+    period = getPeriod();
+    fetchPeriodData();
+  }, [seek]);
 
-  
-  const fetchData = async () => {
+
+  const fetchPeriodData = async () => {
     const url = new URL(`${BASE_URL}/timesheet/period`);
     url.searchParams.append('periodStart', period.start);
     url.searchParams.append('periodEnd', period.end);
@@ -42,6 +46,17 @@ function TimeDB({BASE_URL}) {
       const response = await fetch(url);
       const data = await response.json();
       console.log(data[0])
+      setTimesheet(data);
+    } catch (error) {
+      console.log('Error fetching timesheet:', error.message);
+    }
+  }
+
+  const fetchAllData = async () => {
+    const url = new URL(`${BASE_URL}/timesheet`);
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
       setTimesheet(data);
     } catch (error) {
       console.log('Error fetching timesheet:', error.message);
@@ -89,7 +104,14 @@ function getUIDate(dateString) {
   }
 
   return (
+    
     <div className='main'>
+      <nav className='timesheet-seek'>
+        <button onClick={()=>setSeek(seek - 1)}>Previous</button>
+        <button onClick={()=>setSeek(0)}>Current</button>
+        <button onClick={()=>setSeek(seek + 1)}>Next</button>
+      </nav>
+      <p>{getUIDate(period.start)} - {getUIDate(period.end)}</p>
       {timesheet.map((entry)=>(
         <div key={entry.id} className='entry'>
           <div className='title-bar'>
@@ -114,11 +136,11 @@ function getUIDate(dateString) {
               <div className='job-info'>
                 <p>Project: {entry.projectNumber}</p>
                 <p>Report: {entry.reportNumber}</p>
-                <p>Travel: {entry.travelType}
-                  <button className='info-btn' onClick={()=>setTravelDetailsOpen(true)}>Show</button>
+                <p>Travel: {entry.travelType === '' ? 'None' : entry.travelType}
+                  {entry.travelType != '' && <button className='info-btn' onClick={()=>setTravelDetailsOpen(true)}>Show</button>}
                 </p>
-                <p>{entry.totalMiles} mi</p>
-                <p>{entry.totalTravelTime} hrs</p>
+                {entry.travelType != '' && <p>Mileage: {entry.totalMiles} mi</p>}
+                {entry.travelType != '' && <p>Time: {entry.totalTravelTime} hrs</p>}
               </div>
             
             <div className='entry-controls'>

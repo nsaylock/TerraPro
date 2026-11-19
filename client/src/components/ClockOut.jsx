@@ -56,7 +56,11 @@ function ClockOut({BASE_URL}) {
     try {
       const response = await fetch(`${BASE_URL}/timesheet/${entryId}`);
       const data = await response.json();
+      setDataLoaded(true);
       setEntry(data);
+      
+      setTotalMiles(data.milesToSite);
+      setTotalTravelTime(data.timeToSite);
     } catch (error) {
       console.log('Error fetching entry: ', error.message)
     }
@@ -72,11 +76,6 @@ function ClockOut({BASE_URL}) {
     }
   }
 
-  useEffect(()=>{
-    setDataLoaded(true);
-    setTotalMiles(entry.milesToSite);
-    setTotalTravelTime(entry.timeToSite);
-  },[entry])
   
   useEffect(()=>{
     if (endTime) calculate_hours();
@@ -158,7 +157,7 @@ function ClockOut({BASE_URL}) {
     } catch (error) {
       console.error('Clock out crash out: ', error.message);
     }
-
+    if (samplesFormOpen === true) {
     try {
       const samplesResponse = await fetch(`${BASE_URL}/samples`, {
         method: 'POST',
@@ -173,10 +172,12 @@ function ClockOut({BASE_URL}) {
 
     } catch (error) {
       console.error('Error fetching samples table: ', error.message);
-    }
+    }}
 
     navigate('/timeDB')
   }
+
+if (!dataLoaded) return <p>Loading...</p>
 
 return (
   <div style={{color: 'black', padding: '1rem'}}>
@@ -223,7 +224,7 @@ return (
       )}
 
     <h2 style={{marginTop: '10px'}}>Travel</h2>
-    <div className='clock-in-grid'>
+    {entry.toSiteStart != '' && <div className='clock-in-grid'>
       <label>To Site:</label>
       <p>{entry.toSiteStart + ' to ' + entry.toSiteEnd}</p>
       <label>Miles:</label>
@@ -236,6 +237,8 @@ return (
         <p>{entry.toSiteEnd + ' to ' + entry.toSiteStart}</p>
         </>
       )}
+    </div>}
+    <div className='clock-in-grid'>
       <label>Total Miles:</label>
       <p>{totalMiles} mi</p>
       <label>Total Travel Time:</label>
@@ -244,12 +247,15 @@ return (
     <div>
       <span className='flex'>
       <label>Include Return Travel?</label>
+      { entry.toSiteStart != '' &&
+      <>
         <input type='radio' onChange={()=>{
           setTravelOpen(false),
           reverse_trip()
         }}
           style={{marginLeft:'10px'}} name='travel-radio'
         />Reverse
+        </>}
         <input type='radio' onChange={()=>{setTravelOpen(true), reset_trip_values()}}
           style={{marginLeft:'10px'}} name='travel-radio'
         />New Trip

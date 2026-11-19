@@ -30,6 +30,19 @@ function Samples({BASE_URL}) {
     fetchSamplesTable();
   },[])
 
+  function splitDateString(dateString) {
+    const temp = dateString.split(/[--]/);
+    const year = temp[0];
+    const month = temp[1];
+    const day = temp[2];
+    return {month, day, year};
+  }
+
+  function getUIDate(dateString) {
+    const {month, day, year} = splitDateString(dateString);
+    return (month + '/' + day + '/' + year)
+  }
+
 
   async function handlePickUp(targetId) {
     try {
@@ -63,7 +76,7 @@ function Samples({BASE_URL}) {
         <div  className='samples-list'>
           <div className='samples-list-grid'>
             <div className='samples-list-info'>
-              <h5>Cast Date</h5><p style={{fontSize: '14px'}}>{set.castDate}</p>
+              <h5>Cast Date</h5><p style={{fontSize: '14px'}}>{getUIDate(set.castDate)}</p>
               <h5>Type</h5><p style={{fontSize: '14px'}}>{set.sampleType}</p>
               <h5>Sets</h5><p style={{fontSize: '14px'}}>{set.sets}</p>
               <h5>Set Size</h5><p style={{fontSize: '14px'}}>{set.setSize}</p>
