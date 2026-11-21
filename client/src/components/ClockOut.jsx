@@ -41,12 +41,6 @@ function ClockOut({BASE_URL}) {
   const pickUpEmployee = null;
   const dropOffLocation = null;
   
-
-  const STArray = startTime.split(/[: ]/); // Start Time Array
-  let STHours = Number(STArray[0]);
-  const STMins = Number(STArray[1]);
-  if (STArray[2] === 'PM' && STHours !== 12) STHours += 12;
-
   useEffect(()=>{
     fetchEntry();
     fetchSamplesTable();
@@ -78,31 +72,48 @@ function ClockOut({BASE_URL}) {
 
   
   useEffect(()=>{
-    if (endTime) calculate_hours();
+    if (endTime != undefined)
+    calculate_hours();
   },[endTime])
 
   function calculate_hours() {
     let calculatedHours = 0;
-    let tempArray = endTime.split(/[: ]/);
-    let ETHours = Number(tempArray[0]);
-    let ETMins = Number(tempArray[1]);
-    if (tempArray[2] === 'PM' && tempArray[0] != 12) ETHours += 12;
-    let elapsedHours = ETHours - STHours;
-    let elapsedMins =  ETMins - STMins;
+    if (endTime === 0) setEndTime(2400);
+    let elapsedTime = endTime - startTime;
+    let elapsedHours = 0;
+    let elapsedMins = 0;
+    let timeFloor = Math.floor(elapsedTime / 100) * 100;
 
-    if (elapsedMins < 0) {
-      elapsedHours -= 1;
-      if (ETMins === 0) {
-        elapsedMins = 60 - STMins;
-        calculatedHours = (elapsedHours + (elapsedMins/60)).toFixed(2);
-      } else {
-        elapsedMins = Math.abs(elapsedMins);
-        calculatedHours = (elapsedHours + (1 - elapsedMins/60)).toFixed(2);
-      }
+    if (elapsedTime - timeFloor > 59) {
+      elapsedHours = timeFloor/100;
+      elapsedMins = 60 - (100 - (elapsedTime - timeFloor));
+    } else if (elapsedTime - timeFloor == 60) {
+      elapsedHours = timeFloor/100 + 1;
     } else {
-      calculatedHours = (elapsedHours + elapsedMins/60).toFixed(2);
+      elapsedHours = timeFloor/100;
+      elapsedMins = elapsedTime - timeFloor;
     }
+
+    if (elapsedMins === 0) {
+      calculatedHours = elapsedHours;
+    } else {
+      calculatedHours = (elapsedHours + (elapsedMins/60)).toFixed(2);
+    }
+
     setOnSiteHours(calculatedHours);
+  }
+
+  function getUIDate(dateString) {
+    const {month, day, year} = splitDateString(dateString);
+    return (month + '/' + day + '/' + year)
+  }
+
+  function splitDateString(dateString) {
+    const temp = dateString.split(/[--]/);
+    const year = temp[0];
+    const month = temp[1];
+    const day = temp[2];
+    return {month, day, year};
   }
 
   function reverse_trip() {
@@ -113,6 +124,26 @@ function ClockOut({BASE_URL}) {
     setFromSiteEnd(Number(entry.fromSiteEnd));
     setTotalMiles(Number(entry.milesToSite)*2);
     setTotalTravelTime(entry.timeToSite*2);
+  }
+
+  function getTimeDisplay(time) {
+    let timeFloor = Math.floor(time / 100) * 100;
+    let meridiem;
+    let hours = timeFloor / 100;
+    if (hours < 12) {
+      meridiem = 'AM';
+    } else if (hours === 12) {
+      meridiem = 'PM';
+    } else {
+      hours -= 12;
+      meridiem = 'PM'
+    }
+    let mins = time - timeFloor;
+    if (mins.toString().length === 1) {
+      mins = `0${mins}`;
+    }
+
+    return (`${hours}:${mins} ${meridiem}`);
   }
 
   function reset_trip_values() {
@@ -184,12 +215,12 @@ return (
     <h1>Clock Out</h1>
     <div className='clock-in-grid'>
       <label>Date:</label>
-      <p>{entry.date}</p>
+      <p>{getUIDate(entry.date)}</p>
       <label>Job Name:</label><p>{entry.projectName}</p>
       <label>Job Number:</label><p>{entry.projectNumber}</p>
-      <label>Start Time:</label><p>{entry.startTime}</p>
+      <label>Start Time:</label><p>{getTimeDisplay(entry.startTime)}</p>
       <label>End Time:</label>
-      <TimeSelector header='Leave Site' pullTimeData={(timeString)=>setEndTime(timeString)}/>
+      <TimeSelector header='Leave Site' pullTimeInteger={(military)=>setEndTime(military)}/>
       <label>On-Site:</label><p>{onSiteHours} hrs</p>
       {service === 'Concrete Testing' && (
         <label>Include Strength Specimens?</label>

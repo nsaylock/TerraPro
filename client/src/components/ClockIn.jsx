@@ -14,8 +14,8 @@ function ClockIn({BASE_URL}) {
   const [projectNumber, setprojectNumber] = useState('');
   const [reportNumber, setReportNumber] = useState('');
   const [date, setDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
   const [onSiteHours, setOnSiteHours] = useState(0);
   const [service, setService] = useState('');
   const [travelType, setTravelType] = useState('');
@@ -35,6 +35,11 @@ function ClockIn({BASE_URL}) {
   useEffect(()=>{
     fetchData();
   }, []);
+
+  useEffect(()=>{
+    if (startTime === 0) return;
+    console.log(startTime)
+  },[startTime])
 
   const fetchData = async () => {
     try {
@@ -94,7 +99,7 @@ function ClockIn({BASE_URL}) {
         allowEdit={true}/>
       <label>Time:</label>
 
-      <TimeSelector header='Arrival to Site' pullTimeData={(timeString)=>setStartTime(timeString)} />
+      <TimeSelector header='Arrival to Site' pullTimeInteger={(military)=>setStartTime(military)} />
 
       <span style={{display: 'inline-block'}}><label>Job Name:</label></span>
       <input type="text"

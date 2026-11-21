@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Modal from '../components/Modal';
 import '../css/TimeSelector.css';
 
-function TimeSelector({header, pullTimeData}) {
+function TimeSelector({header, pullTimeInteger}) {
   const [timeOfDay, setTimeOfDay] = useState('');
   const [currentHour, setCurrentHour] = useState(new Date().getHours());
   let [currentMinute, setCurrentMinute] = useState(new Date().getMinutes());
@@ -13,11 +13,16 @@ function TimeSelector({header, pullTimeData}) {
   },[]);
 
   useEffect(() => {
-    currentMinute.toString().length === 1 ? (
-      pullTimeData(currentHour + ':0' + currentMinute + ' ' + timeOfDay)
-    ):(
-      pullTimeData(currentHour + ':' + currentMinute + ' ' + timeOfDay)
-    )
+    if (!timeOfDay) return;
+    let military;
+    if (currentHour === 12 && timeOfDay === 'AM') {
+      military = Number(currentMinute);
+    } else if (timeOfDay === 'AM' || (currentHour == 12 && timeOfDay === 'PM')) {
+      military = (Number(currentHour) * 100) + Number(currentMinute);
+    } else {
+      military = (Number(currentHour) + 12) * 100 + Number(currentMinute);
+    }
+    pullTimeInteger(military);
   }, [currentHour, currentMinute, timeOfDay]);
 
   function check_timeOfDay() {

@@ -1,12 +1,29 @@
 import {useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
+import JobCard from '../components/JobCard.jsx';
 
 
 function TimeDB({BASE_URL}) {
   const [timesheet, setTimesheet] = useState([]);
   const [travelDetailsOpen, setTravelDetailsOpen] = useState(false);
   const [seek, setSeek] = useState(0);
+  let dataLoaded = false;
 
+  const [sundayData, setSundayData] = useState([]);
+  const [mondayData, setMondayData] = useState([]);
+  const [tuesdayData, setTuesdayData] = useState([]);
+  const [wednesdayData, setWednesdayData] = useState([]);
+  const [thursdayData, setThursdayData] = useState([]);
+  const [fridayData, setFridayData] = useState([]);
+  const [saturdayData, setSaturdayData] = useState([]);
+
+  let sun;
+  let mon;
+  let tue;
+  let wed;
+  let thur;
+  let fri;
+  let sat;
   let period = getPeriod();
 
   function getPeriod() {
@@ -19,6 +36,20 @@ function TimeDB({BASE_URL}) {
     saturday.setDate(sunday.getDate() + 6);
     const end = formatDate(saturday);
 
+    let temp = new Date();
+    sun = start;
+    temp.setDate(sunday.getDate()+1);
+    mon = formatDate(temp);
+    temp.setDate(sunday.getDate()+2);
+    tue = formatDate(temp);
+    temp.setDate(sunday.getDate()+3);
+    wed = formatDate(temp);
+    temp.setDate(sunday.getDate()+4);
+    thur = formatDate(temp);
+    temp.setDate(sunday.getDate()+5);
+    fri = formatDate(temp);
+    temp.setDate(sunday.getDate()+1);
+    sat = end;
     return {start: start, end: end};
   }
 
@@ -26,29 +57,49 @@ function TimeDB({BASE_URL}) {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    let formattedDate;
-    if (day.toString().length == 1) formattedDate = `${year}-${month}-0${day}`;
-    else formattedDate = `${year}-${month}-${day}`
-    return formattedDate;
+    return `${year}-${month}-${day}`;
   }
 
   useEffect(()=>{
+    if (!dataLoaded) {
+    const controller = new AbortController();
     period = getPeriod();
     fetchPeriodData();
+    return () => controller.abort();
+    }
   }, [seek]);
 
-
   const fetchPeriodData = async () => {
+    dataLoaded = true;
+
     const url = new URL(`${BASE_URL}/timesheet/period`);
     url.searchParams.append('periodStart', period.start);
     url.searchParams.append('periodEnd', period.end);
     try {
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data[0])
       setTimesheet(data);
+      for (const entry of data) {
+        console.log(entry.date)
+        if (entry.date === sun) {
+          setSundayData((sundayData)=>[...sundayData, entry]);
+        } else if (entry.date === mon) {
+          setMondayData((mondayData)=>[...mondayData, entry]);
+        } else if (entry.date === tue) {
+          setTuesdayData((tuesdayData)=>[...tuesdayData, entry]);
+        } else if (entry.date === wed) {
+          setWednesdayData((wednesdayData)=>[...wednesdayData, entry]);
+        } else if (entry.date === thur) {
+          setThursdayData((thursdayData)=>[...thursdayData, entry]);
+        } else if (entry.date === fri) {
+          setFridayData((fridayData)=>[...fridayData, entry]);
+        } else if (entry.date === sat) {
+          setSaturdayData((saturdayData)=>[...saturdayData, entry]);
+        }
+      }
     } catch (error) {
       console.log('Error fetching timesheet:', error.message);
+      dataLoaded = false;
     }
   }
 
@@ -81,7 +132,7 @@ function TimeDB({BASE_URL}) {
   };
 
   const edit_entry = (id) => {
-    alert('this button doesnt work yet lol')
+    alert('Can\'t edit yet lol')
   }
 
 function getUIDate(dateString) {
@@ -103,70 +154,48 @@ function getUIDate(dateString) {
     return {month, day, year};
   }
 
+  function getTimeDisplay(time) {
+    let timeFloor = Math.floor(time / 100) * 100;
+    let meridiem;
+    let hours = timeFloor / 100;
+    if (hours < 12) {
+      meridiem = 'AM';
+    } else if (hours === 12) {
+      meridiem = 'PM';
+    } else {
+      hours -= 12;
+      meridiem = 'PM'
+    }
+    let mins = time - timeFloor;
+    if (mins.toString().length === 1) {
+      mins = `0${mins}`;
+    }
+
+    return (`${hours}:${mins} ${meridiem}`);
+  }
+
+  function clearDateObjects() {
+    setSundayData([]);
+    setMondayData([]);
+    setTuesdayData([]);
+    setWednesdayData([]);
+    setThursdayData([]);
+    setFridayData([]);
+    setSaturdayData([]);
+  }
+
   return (
     
     <div className='main'>
       <nav className='timesheet-seek'>
-        <button onClick={()=>setSeek(seek - 1)}>Previous</button>
-        <button onClick={()=>setSeek(0)}>Current</button>
-        <button onClick={()=>setSeek(seek + 1)}>Next</button>
+        <button onClick={()=>{dataLoaded = false, setSeek(seek - 1)}}>Previous</button>
+        <button onClick={()=>{dataLoaded = false, setSeek(0)}}>Current</button>
+        <button onClick={()=>{dataLoaded = false, setSeek(seek + 1)}}>Next</button>
       </nav>
       <p>{getUIDate(period.start)} - {getUIDate(period.end)}</p>
-      {timesheet.map((entry)=>(
-        <div key={entry.id} className='entry'>
-          <div className='title-bar'>
-            <h3 style={{marginRight: '10px'}}>{getUIDate(entry.date)}</h3>
-            <h3>{get_day_of_week(entry.date)}</h3>
-          </div> 
-            
-           <div className='job'>
-              <div style={{textAlign: 'left'}}>
-                <h3 style={{placeSelf: 'start'}}>Hours<br/>{Number(entry.onSiteHours) + Number(entry.totalTravelTime)}<br/></h3>
-              </div>
-              <div className='job-info'>
-                <p><strong>{entry.projectName}</strong></p>
-                <p>{entry.service}</p>
-                <p>Start: {entry.startTime}</p>
-                <p>End: {
-                  entry.endTime == '' ? '----' : entry.endTime
-                  }</p>
-                <p>On-Site: {entry.onSiteHours} hrs</p>
-              </div>
 
-              <div className='job-info'>
-                <p>Project: {entry.projectNumber}</p>
-                <p>Report: {entry.reportNumber}</p>
-                <p>Travel: {entry.travelType === '' ? 'None' : entry.travelType}
-                  {entry.travelType != '' && <button className='info-btn' onClick={()=>setTravelDetailsOpen(true)}>Show</button>}
-                </p>
-                {entry.travelType != '' && <p>Mileage: {entry.totalMiles} mi</p>}
-                {entry.travelType != '' && <p>Time: {entry.totalTravelTime} hrs</p>}
-              </div>
-            
-            <div className='entry-controls'>
-              <button className='edit-btn'
-                onClick={edit_entry}
-                >Edit</button>
-              <Link to='/clock-out' state={{
-                id: entry.id,
-                startTime: entry.startTime,
-                service: entry.service
-                }}>
-                <button className='edit-btn'
-                style={{background: 'lightblue'}}
-                >
-                Clock Out
-                </button>
-              </Link>
-              <button className='edit-btn'
-                style={{background: 'indianred'}}
-                onClick={edit_entry}
-                >Report</button>
-              <button className='danger-btn' onClick={()=>handleDelete(entry.id)}>Delete</button>
-            </div> {/* close entry controls */}
-          </div>
-        </div> /* Close Entry */
-      ))}
+      
+      <JobCard data={thursdayData} />
     </div>
   )
 }

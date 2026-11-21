@@ -6,7 +6,8 @@ import '../css/TimeSelector.css';
 function DateSelector({pullDateString, allowEdit}) {
   const monthNow = new Date(Date.now()).getMonth() + 1;
   const dayNow = new Date(Date.now()).getDate();
-  const yearNow = new Date(Date.now()).getFullYear()
+  const yearNow = new Date(Date.now()).getFullYear();
+  const [dateString, setDateString] = useState('');
   const [month, setMonth] = useState(monthNow);
   const [day, setDay] = useState(dayNow);
   const [year, setYear] = useState(yearNow);
@@ -15,12 +16,21 @@ function DateSelector({pullDateString, allowEdit}) {
   get_last_day_of_month();
 
   useEffect(()=> {
-    day.toString().length == 1 ? (
-    pullDateString(year + '-' + month + '-0' + day)
-    ) : (
-      pullDateString(year + '-' + month + '-' + day)
-    )
+    setDateString(`${year}-${month}-${day}`)
+    pullDateString(dateString);
   }, [month, day, year])
+
+  useEffect(()=>{
+    if (month.toString().length === 1) {
+      setMonth(`0${month}`)
+    }
+  },[month])
+
+  useEffect(()=>{
+    if (day.toString().length === 1) {
+      setDay(`0${day}`)
+    }
+  },[day])
 
   function change_month(action) {
     if (action == 'increase') {
@@ -82,6 +92,20 @@ function DateSelector({pullDateString, allowEdit}) {
     setYear(yearNow);
   }
 
+  function get_day_of_week(dateString) {
+    const {month, day, year} = splitDateString(dateString);
+    const specificDate = new Date(`${year}-${month}-${day}T12:00:00`);
+    return specificDate.toLocaleDateString('en-US', {weekday: 'long'});
+  }
+
+  function splitDateString(dateString) {
+    const temp = dateString.split(/[--]/);
+    const year = temp[0];
+    const month = temp[1];
+    const day = temp[2];
+    return {month, day, year};
+  }
+
   return (
     <>
     <div className='white-box'>
@@ -99,7 +123,8 @@ function DateSelector({pullDateString, allowEdit}) {
 
     {/**Inside MODAL */}
     <Modal isOpen={modalOpen} onClose={()=>setModalOpen(false)}>
-      <h2>Date</h2>
+      <h2 style={{border: '2px solid gray'}}>Date</h2>
+      <h3 style={{marginBottom: '15px'}}>{get_day_of_week(dateString)}</h3>
       <div className='date-edit-grid'>
         <button type='button' className='invis-btn'
           onClick={()=>change_month('increase')}
