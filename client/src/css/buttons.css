@@ -1,0 +1,45 @@
+button {
+  padding: 3px 8px;
+  border-radius: 15px;
+  border-width: 1px;
+  border: none;
+  background: var(--btn);
+}
+
+.nav-link-btns {
+  display: flex;
+  justify-self: center;
+}
+
+.nav-link-btns > * {
+  margin-left: 10px;
+}
+
+.info-btn {
+  margin-left: 3px;
+  font-size: 10px;
+}
+
+.danger, .edit-btn, .big-btn {
+  background: var(--danger);
+  color: white;
+  border:none;
+  border-radius: 15px;
+  padding: 2px 5px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.edit-btn {
+  background-color: rgb(224, 224, 98);
+  color: black;
+  padding: 2px 15px;
+}
+
+.big-btn {
+  color: black;
+  font-size: 18px;
+  padding: 5px 20px;
+  height: 50px;
+  width: 150px;
+}

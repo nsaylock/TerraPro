@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import JobCard from '../components/JobCard.jsx';
+import JobCard from './JobCard.jsx';
+import {getUIDate} from '../utils/dateTime.js';
+import '../css/Timesheet.css';
 
 function formatDate(date) {
   const y = date.getFullYear();
@@ -70,13 +72,13 @@ function TimeDB({ BASE_URL }) {
   };
 
   return (
-    <div className='main'>
-      <nav className='timesheet-seek'>
+    <div className='ts-main'>
+      <nav className='ts-seek'>
         <button onClick={() => setSeek((s) => s - 1)}>Previous</button>
         <button onClick={() => setSeek(0)}>Current</button>
         <button onClick={() => setSeek((s) => s + 1)}>Next</button>
       </nav>
-      <p>{start} - {end}</p>
+      <h3 style={{color: 'var(--text)'}}>{getUIDate(start)} - {getUIDate(end)}</h3>
 
       {error && <p>Error: {error}</p>}
       {timesheet === null && !error && <p>Loading...</p>}

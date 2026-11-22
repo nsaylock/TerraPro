@@ -1,0 +1,24 @@
+.clock-in-main {
+  display: flex;
+  flex-direction: column;
+  position: static;
+  color: black;
+  padding: 1rem;
+}
+
+
+.clock-in-grid {
+  display: grid;
+  grid-template-columns: 150px 270px;
+  justify-content: center;
+  row-gap: 5px;
+}
+
+.clock-in-grid > :nth-child(odd) {
+  justify-self: end;
+  margin-right: 10px;
+}
+
+.clock-in-grid > :nth-child(even) {
+  justify-self: start;
+}

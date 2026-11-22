@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DateSelector from './DateSelector';
 import TimeSelector from './TimeSelector';
 import Travel from './Travel';
-import '../css/App.css';
+import '../css/ClockIn.css';
 
 const NO_TRAVEL = {
   travelType: '',
@@ -155,7 +155,7 @@ function ClockIn({ BASE_URL }) {
         </span>
       </div>
 
-      <div className='main'>
+      <div className='clock-in-main'>
         <Travel isOpen={travelOpen} values={form} onChange={update} />
       </div>
 

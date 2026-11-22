@@ -1,0 +1,13 @@
+.ts-main {
+  display: flex;
+  flex-direction: column;
+  position: static;
+  color: black;
+  padding: 1rem;
+}
+
+.ts-seek {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}

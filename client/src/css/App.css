@@ -194,7 +194,6 @@
 .flex-ctr {
   display: flex;
   justify-content: center;
-  color: black;
 }
 
 .col {
@@ -215,12 +214,11 @@
   display: flex;
   flex-direction: column;
   position: static;
-  color: black;
   padding: 1rem;
 }
 
 .app-main {
-  background: rgb(163, 163, 163);
+  background: var(--bg-dark);
 }
 
 .check-width {
@@ -230,21 +228,7 @@
   z-index: 10;
 }
 
-.clock-in-grid {
-  display: grid;
-  grid-template-columns: 150px 270px;
-  justify-content: center;
-  row-gap: 5px;
-}
 
-.clock-in-grid > :nth-child(odd) {
-  justify-self: end;
-  margin-right: 10px;
-}
-
-.clock-in-grid > :nth-child(even) {
-  justify-self: start;
-}
 
 input:focus, select:focus {
   outline: none;
@@ -286,7 +270,7 @@ input:focus, select:focus {
 }
 
 label {
-  color: black;
+  color: var(--text-h);
 }
 
 .result {
@@ -298,24 +282,9 @@ label {
 .divide-line {
   width: 100%;
   border-width: 2px 0 0 0;
-  border-color: black;
+  border-color: var(--accent);
   border-style: solid;
   margin: 1rem 0;
-}
-
-.nav-link-btns {
-  display: flex;
-  justify-self: center;
-}
-
-.nav-link-btns > * {
-  margin-left: 10px;
-}
-
-button {
-  padding: 2px 5px;
-  border-radius: 15px;
-  border-width: 1px;
 }
 
 /* Samples Page $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  */
@@ -329,8 +298,8 @@ button {
 }
 
 .samples-card {
-  background-color: white;
-  border: 3px solid black;
+  background-color: var(--bg-light);
+  border: 3px solid var(--text-h);
   border-radius: 20px;
   margin-top: 10px;
 }
@@ -345,14 +314,14 @@ button {
 
 .samples-list-info > *,
 .samples-location > * {
-  border: 1px solid black;
+  border: 1px solid var(--text-h);
   border-width: 0 0 1px 0;
 }
 
 .samples-list-grid > :nth-child(odd) {
   border-style: solid;
   border-width: 0 1px 0 0;
-  border-color: black;
+  border-color: var(--text-h);
 }
 
 .samples-list-grid {
@@ -374,7 +343,7 @@ button {
   padding-right: 5px;
   border-style: solid;
   border-width: 0 1px 1px 0;
-  border-color: black;
+  border-color: var(--text-h);
 }
 
 .samples-list-info > :nth-child(even),
@@ -389,12 +358,6 @@ button {
   grid-template-columns: 1fr 4.08fr;
 }
 
-.timesheet-seek {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-}
-
 .entry-grid {
   display: grid;
   width: 100%;
@@ -404,15 +367,6 @@ button {
 
 .entry-grid > :nth-child(n) { justify-self: start;}
 
-.info-btn {
-  margin-left: 3px;
-  font-size: 10px;
-}
-
-.time-entry {
-  outline: 1px solid red;
-}
-
 .entry-line {
   width: 100%;
   display: flex;
@@ -420,27 +374,5 @@ button {
 }
 
 
-.danger, .edit-btn, .big-btn {
-  background: #ff4d4d;
-  color: white;
-  border:none;
-  border-radius: 15px;
-  padding: 2px 5px;
-  cursor: pointer;
-  font-size: 11px;
-}
 
-.edit-btn {
-  background-color: rgb(224, 224, 98);
-  color: black;
-  padding: 2px 15px;
-}
-
-.big-btn {
-  color: black;
-  font-size: 18px;
-  padding: 5px 20px;
-  height: 50px;
-  width: 150px;
-}
 
