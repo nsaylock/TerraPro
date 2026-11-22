@@ -1,157 +1,102 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Modal from './Modal';
+import ArrowButton from './ArrowButton';
 import '../css/App.css';
 import '../css/TimeSelector.css';
 
-function DateSelector({pullDateString, allowEdit}) {
-  const monthNow = new Date(Date.now()).getMonth() + 1;
-  const dayNow = new Date(Date.now()).getDate();
-  const yearNow = new Date(Date.now()).getFullYear();
-  const [dateString, setDateString] = useState('');
-  const [month, setMonth] = useState(monthNow);
-  const [day, setDay] = useState(dayNow);
-  const [year, setYear] = useState(yearNow);
+const pad = (n) => String(n).padStart(2, '0');
+
+// month is 1-12. Day 0 of the *next* month is the last day of this one,
+// and Date handles leap years for us.
+const daysInMonth = (year, month) => new Date(year, month, 0).getDate();
+
+// Spinner behavior: past the end goes back to the start, and vice versa
+const wrap = (value, min, max) => (value > max ? min : value < min ? max : value);
+
+const getToday = () => {
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
+};
+
+function DateSelector({ pullDateString, allowEdit }) {
+  const [date, setDate] = useState(getToday);
   const [modalOpen, setModalOpen] = useState(false);
-  let lastDayOfMonth;
-  get_last_day_of_month();
+  const { year, month, day } = date;
 
-  useEffect(()=> {
-    setDateString(`${year}-${month}-${day}`)
-    pullDateString(dateString);
-  }, [month, day, year])
+  // Everything below is derived from the numbers above, never stored
+  const dateString = `${year}-${pad(month)}-${pad(day)}`;
+  const display = `${pad(month)} / ${pad(day)} / ${year}`;
+  const dayOfWeek = new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    weekday: 'long',
+  });
 
-  useEffect(()=>{
-    if (month.toString().length === 1) {
-      setMonth(`0${month}`)
-    }
-  },[month])
+  // Tell the parent whenever the date changes (and once on mount).
+  // The callback lives in a ref so an inline function from the parent
+  // can't re-trigger this effect.
+  const pullRef = useRef(pullDateString);
+  useEffect(() => {
+    pullRef.current = pullDateString;
+  });
+  useEffect(() => {
+    pullRef.current?.(dateString);
+  }, [dateString]);
 
-  useEffect(()=>{
-    if (day.toString().length === 1) {
-      setDay(`0${day}`)
-    }
-  },[day])
+  const changeMonth = (delta) =>
+    setDate((d) => {
+      const newMonth = wrap(d.month + delta, 1, 12);
+      return { ...d, month: newMonth, day: Math.min(d.day, daysInMonth(d.year, newMonth)) };
+    });
 
-  function change_month(action) {
-    if (action == 'increase') {
-      setMonth(month + 1);
-      if (month >= 12) setMonth(1);
-    } else if (action == 'decrease') {
-      setMonth(month - 1);
-      if (month <= 1) setMonth(12);
-    }
-  }
+  const changeDay = (delta) =>
+    setDate((d) => ({ ...d, day: wrap(d.day + delta, 1, daysInMonth(d.year, d.month)) }));
 
-  useEffect(()=>{
-    get_last_day_of_month();
-    if (day > lastDayOfMonth) setDay(lastDayOfMonth);
-  }, [month])
-
-  function get_last_day_of_month() {
-    switch (month) {
-      case 1:
-      case 3:
-      case 5:
-      case 7:
-      case 8:
-      case 10:
-      case 12:
-        lastDayOfMonth = 31;
-        break;
-      case 4:
-      case 6:
-      case 9:
-      case 11:
-        lastDayOfMonth = 30;
-        break;
-      case 2:
-        if (year % 4 === 0) lastDayOfMonth = 29;
-        else lastDayOfMonth = 28;
-        break;
-  }}
-
-  function change_day(action) {
-    if (action == 'increase') {
-      setDay(day + 1);
-      if (day >= lastDayOfMonth) setDay(1);
-    } else if (action == 'decrease') {
-      setDay(day - 1);
-      if (day <= 1) setDay(lastDayOfMonth);
-    }
-  }
-
-  function change_year(action) {
-    if (action == 'increase') {
-      setYear(year + 1);
-    } else if (action == 'decrease') setYear(year - 1);
-  }
-
-  function setDateToday() {
-    setMonth(monthNow);
-    setDay(dayNow);
-    setYear(yearNow);
-  }
-
-  function get_day_of_week(dateString) {
-    const {month, day, year} = splitDateString(dateString);
-    const specificDate = new Date(`${year}-${month}-${day}T12:00:00`);
-    return specificDate.toLocaleDateString('en-US', {weekday: 'long'});
-  }
-
-  function splitDateString(dateString) {
-    const temp = dateString.split(/[--]/);
-    const year = temp[0];
-    const month = temp[1];
-    const day = temp[2];
-    return {month, day, year};
-  }
+  const changeYear = (delta) =>
+    setDate((d) => {
+      const newYear = d.year + delta;
+      return { ...d, year: newYear, day: Math.min(d.day, daysInMonth(newYear, d.month)) };
+    });
 
   return (
     <>
-    <div className='white-box'>
-    {(month.toString().length==1?month.toString().padStart(2,'0'):month)
-     + ' / ' + 
-      (day.toString().length==1?day.toString().padStart(2, '0'):day)
-     + ' / ' + year}
-     {allowEdit == true && (
-     <span>
-      <button className='edit-btn' onClick={()=>setModalOpen(true)}>Edit</button>
-      <button className='edit-btn' onClick={()=>setDateToday()}>Today</button>
-    </span>
-     )}
-    </div>
-
-    {/**Inside MODAL */}
-    <Modal isOpen={modalOpen} onClose={()=>setModalOpen(false)}>
-      <h2 style={{border: '2px solid gray'}}>Date</h2>
-      <h3 style={{marginBottom: '15px'}}>{get_day_of_week(dateString)}</h3>
-      <div className='date-edit-grid'>
-        <button type='button' className='invis-btn'
-          onClick={()=>change_month('increase')}
-          ><div className='up-arrow'></div></button>
-        <p></p>
-        <button className='invis-btn'onClick={()=>change_day('increase')}><div className='up-arrow'></div></button>
-        <p></p>
-        <button className='invis-btn' onClick={()=>change_year('increase')}><div className='up-arrow'></div></button>
-        <h2>{month.toString().length==1?month.toString().padStart(2,'0'):month}</h2>
-        <h2>/</h2>
-        <h2>{day.toString().length==1?day.toString().padStart(2,'0'):day}</h2>
-        <h2>/</h2>
-        <h2>{year}</h2>
-        <button className='invis-btn'
-          onClick={()=>change_month('decrease')}
-          ><div className='down-arrow'></div></button>
-        <p></p>
-        <button className='invis-btn'
-          onClick={()=>change_day('decrease')}
-          ><div className='down-arrow'></div></button>
-        <p></p>
-        <button className='invis-btn' onClick={()=>change_year('decrease')}><div className='down-arrow'></div></button>
+      <div className='white-box'>
+        {display}
+        {allowEdit && (
+          <span>
+            <button type='button' className='edit-btn' onClick={() => setModalOpen(true)}>
+              Edit
+            </button>
+            <button type='button' className='edit-btn' onClick={() => setDate(getToday())}>
+              Today
+            </button>
+          </span>
+        )}
       </div>
-    </Modal>
-    
+
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+        <h2 style={{ border: '2px solid gray' }}>Date</h2>
+        <h3 style={{ marginBottom: '15px' }}>{dayOfWeek}</h3>
+        <div className='date-edit-grid'>
+          <ArrowButton direction='up' label='Next month' onClick={() => changeMonth(1)} />
+          <p></p>
+          <ArrowButton direction='up' label='Next day' onClick={() => changeDay(1)} />
+          <p></p>
+          <ArrowButton direction='up' label='Next year' onClick={() => changeYear(1)} />
+
+          <h2>{pad(month)}</h2>
+          <h2>/</h2>
+          <h2>{pad(day)}</h2>
+          <h2>/</h2>
+          <h2>{year}</h2>
+
+          <ArrowButton direction='down' label='Previous month' onClick={() => changeMonth(-1)} />
+          <p></p>
+          <ArrowButton direction='down' label='Previous day' onClick={() => changeDay(-1)} />
+          <p></p>
+          <ArrowButton direction='down' label='Previous year' onClick={() => changeYear(-1)} />
+        </div>
+      </Modal>
     </>
-  )
+  );
 }
 
-export default DateSelector
+export default DateSelector;

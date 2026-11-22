@@ -27,9 +27,11 @@ const stmts = {
     pickUpDate = ?,
     pickUpTime = ?,
     pickUpEmployee = ?,
-    dropOffLocation = ?
+    dropOffLocation = ?,
+    highTemp = ?,
+    lowTemp = ?
     WHERE id = ?`),
-    remove: samplesDb.prepare('DELETE FROM samples WHERE id = ?'),
+  remove: samplesDb.prepare('DELETE FROM samples WHERE id = ?'),
 };
 
 router.get('/', (req, res) => {
@@ -39,7 +41,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res, next) => {
   try {
     const samples = stmts.get.get(req.params.id);
-    if (!samples) return res.status(404).json({ error: 'User not found' });
+    if (!samples) return res.status(404).json({ error: 'Sample not found' });
     res.json(samples);
   } catch (err) { next(err); }
 });
@@ -96,19 +98,36 @@ router.post('/', (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Record a pick up. Temperatures are entered by whoever picks the samples up.
 router.put('/:id', (req, res, next) => {
   try {
     const {
       pickUpDate,
       pickUpTime,
       pickUpEmployee,
-      dropOffLocation
+      dropOffLocation,
+      highTemp,
+      lowTemp
     } = req.body;
+
+    if (!pickUpDate) {
+      return res.status(400).json({ error: 'Pick up date is required' });
+    }
+    // Number.isFinite is strict: it rejects strings, null and NaN
+    if (!Number.isFinite(highTemp) || !Number.isFinite(lowTemp)) {
+      return res.status(400).json({ error: 'High and low temperatures must be numbers' });
+    }
+    if (highTemp < lowTemp) {
+      return res.status(400).json({ error: 'High temperature cannot be lower than the low temperature' });
+    }
+
     const sample = stmts.update.run(
       pickUpDate,
-      pickUpTime,
-      pickUpEmployee,
-      dropOffLocation,
+      pickUpTime ?? null,
+      pickUpEmployee ?? null,
+      dropOffLocation ?? null,
+      highTemp,
+      lowTemp,
       req.params.id
     );
     if (sample.changes === 0) return res.status(404).json({ error: 'Entry not found' });
@@ -117,7 +136,9 @@ router.put('/:id', (req, res, next) => {
       pickUpDate,
       pickUpTime,
       pickUpEmployee,
-      dropOffLocation
+      dropOffLocation,
+      highTemp,
+      lowTemp
      });
   } catch (err) { next(err); }
 });

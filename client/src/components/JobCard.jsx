@@ -1,124 +1,122 @@
-import {useState} from 'react';
-import {Link} from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Modal from './Modal';
+import { getUIDate, getDayOfWeek, getTimeDisplay } from '../utils/dateTime';
+import '../css/JobCard.css';
 
-function JobCard({data}) {
-
-    // 3. Handle deleting a user
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this entry?')) return;
-
-    try {
-      const response = await fetch(`${BASE_URL}/timesheet/${id}`, {
-        method: 'DELETE',
-      });
-        if (response.ok) {
-          // Filter out deleted user from UI state instantly
-          setTimesheet(timesheet.filter((entry) => entry.id !== id));
-        }
-    } catch (err) {
-      console.error('Error deleting entry - 324bcdl:', err)
-    }
-  };
-
-  const edit_entry = (id) => {
-    alert('Can\'t edit yet lol')
-  }
-
-function getUIDate(dateString) {
-  const {month, day, year} = splitDateString(dateString);
-  return (month + '/' + day + '/' + year.slice(2))
+function TitleBar({ date }) {
+  return (
+    <div className='title-bar'>
+      <h3 style={{ marginRight: '10px' }}>{getUIDate(date)}</h3>
+      <h3>{getDayOfWeek(date)}</h3>
+    </div>
+  );
 }
 
-  function get_day_of_week(dateString) {
-    const {month, day, year} = splitDateString(dateString);
-    const specificDate = new Date(`${year}-${month}-${day}T12:00:00`);
-    return specificDate.toLocaleDateString('en-US', {weekday: 'long'});
-  }
+// ---- One timesheet entry. Owns its own "travel details" modal state. ----
 
-  function splitDateString(dateString) {
-    const temp = dateString.split(/[--]/);
-    const year = temp[0];
-    const month = temp[1];
-    const day = temp[2];
-    return {month, day, year};
-  }
+function JobEntry({ entry, onDelete }) {
+  const navigate = useNavigate();
+  const [travelOpen, setTravelOpen] = useState(false);
 
-  function getTimeDisplay(time) {
-    let timeFloor = Math.floor(time / 100) * 100;
-    let meridiem;
-    let hours = timeFloor / 100;
-    if (hours < 12) {
-      meridiem = 'AM';
-    } else if (hours === 12) {
-      meridiem = 'PM';
-    } else {
-      hours -= 12;
-      meridiem = 'PM'
-    }
-    let mins = time - timeFloor;
-    if (mins.toString().length === 1) {
-      mins = `0${mins}`;
-    }
+  const hasTravel = Boolean(entry.travelType);
+  const totalHours = Number((Number(entry.onSiteHours) + Number(entry.totalTravelTime)).toFixed(2));
+  const clockedOut = Number(entry.endTime) !== 0;
 
-    return (`${hours}:${mins} ${meridiem}`);
-  }
+  return (
+    <div className='job-week-view'>
+      <div className='job'>
+        <div style={{ textAlign: 'left' }}>
+          <h3 style={{ placeSelf: 'start' }}>
+            Hours<br />{totalHours}<br />
+          </h3>
+        </div>
 
-  {data.map((entry)=>(
-        <div key={entry.id} className='entry'>
-          <div className='title-bar'>
-            <h3 style={{marginRight: '10px'}}>{getUIDate(entry.date)}</h3>
-            <h3>{get_day_of_week(entry.date)}</h3>
-          </div> 
-            
-           <div className='job'>
-              <div style={{textAlign: 'left'}}>
-                <h3 style={{placeSelf: 'start'}}>Hours<br/>{Number(entry.onSiteHours) + Number(entry.totalTravelTime)}<br/></h3>
-              </div>
-              <div className='job-info'>
-                <p><strong>{entry.projectName}</strong></p>
-                <p>{entry.service}</p>
-                <p>Start: {getTimeDisplay(entry.startTime)}</p>
-                <p>End: {
-                  entry.endTime == 0  ? '-------' : getTimeDisplay(entry.endTime)
-                  }</p>
-                <p>On-Site: {entry.onSiteHours} hrs</p>
-              </div>
+        <div className='job-info'>
+          <p><strong>{entry.projectName}</strong></p>
+          <p>{entry.service}</p>
+          <p>Start: {getTimeDisplay(entry.startTime)}</p>
+          <p>End: {clockedOut ? getTimeDisplay(entry.endTime) : '-------'}</p>
+          <p>On-Site: {entry.onSiteHours} hrs</p>
+        </div>
 
-              <div className='job-info'>
-                <p>Project: {entry.projectNumber}</p>
-                <p>Report: {entry.reportNumber}</p>
-                <p>Travel: {entry.travelType === '' ? 'None' : entry.travelType}
-                  {entry.travelType != '' && <button className='info-btn' onClick={()=>setTravelDetailsOpen(true)}>Show</button>}
-                </p>
-                {entry.travelType != '' && <p>Mileage: {entry.totalMiles} mi</p>}
-                {entry.travelType != '' && <p>Time: {entry.totalTravelTime} hrs</p>}
-              </div>
-            
-            <div className='entry-controls'>
-              <button className='edit-btn'
-                onClick={edit_entry}
-                >Edit</button>
-              <Link to='/clock-out' state={{
-                id: entry.id,
-                startTime: entry.startTime,
-                service: entry.service
-                }}>
-                <button className='edit-btn'
-                style={{background: 'lightblue'}}
-                >
-                Clock Out
-                </button>
-              </Link>
-              <button className='edit-btn'
-                style={{background: 'indianred'}}
-                onClick={edit_entry}
-                >Report</button>
-              <button className='danger-btn' onClick={()=>handleDelete(entry.id)}>Delete</button>
-            </div> {/* close entry controls */}
-          </div>
-        </div> /* Close Entry */
+        <div className='job-info'>
+          <p>Project: {entry.projectNumber}</p>
+          <p>Report: {entry.reportNumber}</p>
+          <p>
+            Travel: {hasTravel ? entry.travelType : 'None'}
+            {hasTravel && (
+              <button type='button' className='info-btn' onClick={() => setTravelOpen(true)}>
+                Show
+              </button>
+            )}
+          </p>
+          {hasTravel && <p>Mileage: {entry.totalMiles} mi</p>}
+          {hasTravel && <p>Time: {entry.totalTravelTime} hrs</p>}
+        </div>
+
+        <div className='entry-controls'>
+          <button
+            type='button'
+            className='edit-btn'
+            onClick={() => alert("Can't edit yet")}
+          >
+            Edit
+          </button>
+          <button
+            type='button'
+            className='edit-btn'
+            style={{ background: 'lightblue' }}
+            onClick={() =>
+              navigate('/clock-out', {
+                state: { id: entry.id, startTime: entry.startTime, service: entry.service },
+              })
+            }
+          >
+            Clock Out
+          </button>
+          <button
+            type='button'
+            className='edit-btn'
+            style={{ background: 'indianred' }}
+            onClick={() => alert("Reports aren't available yet")}
+          >
+            Report
+          </button>
+          <button type='button' className='danger-btn' onClick={() => onDelete(entry.id)}>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <Modal isOpen={travelOpen} onClose={() => setTravelOpen(false)}>
+        <div style={{ color: 'black' }}>
+          <h2>Travel Details</h2>
+          <p>Type: {entry.travelType}</p>
+          {entry.toSiteStart && <p>From: {entry.toSiteStart}</p>}
+          {entry.toSiteEnd && <p>To: {entry.toSiteEnd}</p>}
+          <p>Mileage: {entry.totalMiles} mi</p>
+          <p>Time: {entry.totalTravelTime} hrs</p>
+          <button type='button' onClick={() => setTravelOpen(false)}>Close</button>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
+// ---- One day: a title bar, plus an entry for each job on that day ----
+
+function JobCard({ data = [], date, onDelete }) {
+  if (data.length === 0) return <TitleBar date={date} />;
+
+  return (
+    <div className='entry'>
+      <TitleBar date={date} />
+      {data.map((entry) => (
+        <JobEntry key={entry.id} entry={entry} onDelete={onDelete} />
       ))}
+    </div>
+  );
 }
 
 export default JobCard;
-
