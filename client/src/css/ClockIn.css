@@ -6,10 +6,15 @@
   padding: 1rem;
 }
 
+.radio {
+  color: var(--text);
+  padding-left: 5px;
+  display: inline;
+}
 
 .clock-in-grid {
   display: grid;
-  grid-template-columns: 150px 270px;
+  grid-template-columns: 150px 350px;
   justify-content: center;
   row-gap: 5px;
 }

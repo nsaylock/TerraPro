@@ -1,5 +1,4 @@
 * {
-  color: black;
   padding: 0;
   margin: 0;
 }
@@ -210,6 +209,8 @@
   flex-direction: column;
 }
 
+
+
 .main {
   display: flex;
   flex-direction: column;
@@ -226,6 +227,20 @@
   top: 0;
   left: 0;
   z-index: 10;
+}
+
+.flex { 
+  display: flex; 
+}
+
+.white-box {
+  background-color: white;
+  color: var(--text-h);
+  border: 1px solid black;
+  padding: 0 5px;
+  border-radius: 5px;
+  justify-self: start;
+  width: 50%;
 }
 
 
@@ -269,8 +284,8 @@ input:focus, select:focus {
   border-color: gray;
 }
 
-label {
-  color: var(--text-h);
+.full-width {
+  width: 100%;
 }
 
 .result {

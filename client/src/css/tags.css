@@ -1,0 +1,8 @@
+body {
+  background-color: var(--bg-dark);
+}
+
+label, h1 {
+  color: var(--text);
+}
+

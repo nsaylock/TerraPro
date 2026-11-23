@@ -4,6 +4,11 @@ button {
   border-width: 1px;
   border: none;
   background: var(--btn);
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: var(--btn-h);
 }
 
 .nav-link-btns {

@@ -57,20 +57,23 @@ function DateSelector({ pullDateString, allowEdit }) {
     });
 
   return (
-    <>
-      <div className='white-box'>
+    <div className='full-width'>
+      <span className='flex'>
+      <div className='flex white-box'>
         {display}
-        {allowEdit && (
-          <span>
-            <button type='button' className='edit-btn' onClick={() => setModalOpen(true)}>
+        
+      </div>
+      {allowEdit && (
+          <div className='edit-container'>
+            <button type='button' onClick={() => setModalOpen(true)}>
               Edit
             </button>
-            <button type='button' className='edit-btn' onClick={() => setDate(getToday())}>
+            <button type='button' onClick={() => setDate(getToday())}>
               Today
             </button>
-          </span>
+          </div>
         )}
-      </div>
+        </span>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         <h2 style={{ border: '2px solid gray' }}>Date</h2>
@@ -95,7 +98,7 @@ function DateSelector({ pullDateString, allowEdit }) {
           <ArrowButton direction='down' label='Previous year' onClick={() => changeYear(-1)} />
         </div>
       </Modal>
-    </>
+    </div>
   );
 }
 

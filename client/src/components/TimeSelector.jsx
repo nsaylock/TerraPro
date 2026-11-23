@@ -58,16 +58,20 @@ function TimeSelector({ header, pullTimeInteger }) {
   const togglePeriod = () => setTime((t) => ({ ...t, hour24: (t.hour24 + 12) % 24 }));
 
   return (
-    <div>
+    <div className='full-width'>
+      <span className='flex'>
       <div className='flex white-box'>
         {hour12} : {pad(minute)} {period}
-        <button type='button' onClick={() => setModalOpen(true)} className='edit-btn'>
+        
+      </div>
+      <div className='edit-container flex'><button type='button' onClick={() => setModalOpen(true)}>
           Edit
         </button>
-        <button type='button' onClick={() => setTime(getNow())} className='edit-btn'>
+        <button type='button' onClick={() => setTime(getNow())}>
           Now
         </button>
       </div>
+      </span>
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
         <h2 style={{ color: 'black' }}>{header}</h2>
@@ -86,7 +90,7 @@ function TimeSelector({ header, pullTimeInteger }) {
           <div className='time-box'>
             <h2>{hour12}</h2>
           </div>
-          <h2>:</h2>
+          <h2 style={{color: 'var(--text-h', textAlign: 'center'}}>:</h2>
           <div className='time-box'>
             <h2>{pad(minute)}</h2>
           </div>
@@ -105,9 +109,11 @@ function TimeSelector({ header, pullTimeInteger }) {
             <h1></h1>
           )}
         </div>
-        <button type='button' onClick={() => setModalOpen(false)}>
-          OK
-        </button>
+        <div style={{display: 'flex', justifyContent:'center'}}>
+          <button type='button' onClick={() => setModalOpen(false)}>
+            OK
+          </button>
+        </div>
       </Modal>
     </div>
   );

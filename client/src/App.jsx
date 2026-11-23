@@ -6,6 +6,7 @@ import MixCalculator from './components/MixCalculator';
 import { Link, Routes, Route } from 'react-router-dom';
 import './css/App.css';
 import './css/buttons.css';
+import './css/tags.css';
 import ClockOut from './components/ClockOut';
 
 const BASE_URL = 'http://localhost:3000/api';

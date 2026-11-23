@@ -18,19 +18,20 @@ function Travel({ isOpen, values, onChange }) {
             name='travel-type'
             checked={values.travelType === 'Personal'}
             onChange={() => onChange({ travelType: 'Personal' })}
-          />
-          Personal
+          /><p className='radio'>Personal</p>
           <input
             type='radio'
             name='travel-type'
             checked={values.travelType === 'Company'}
             onChange={() => onChange({ travelType: 'Company' })}
+            style={{marginLeft: '10px'}}
           />
-          Company
+          <p className='radio'>Company</p>
         </span>
 
         <label htmlFor='start-loc'>From:</label>
         <input
+          className='white-box'
           type='text'
           id='start-loc'
           placeholder='Starting Location'
@@ -40,6 +41,7 @@ function Travel({ isOpen, values, onChange }) {
 
         <label htmlFor='end-loc'>To:</label>
         <input
+          className='white-box'
           type='text'
           id='end-loc'
           placeholder='Ending Location'
@@ -49,6 +51,7 @@ function Travel({ isOpen, values, onChange }) {
 
         <label htmlFor='mileage'>Mileage:</label>
         <input
+          className='white-box'
           type='number'
           id='mileage'
           min='0'
@@ -60,6 +63,7 @@ function Travel({ isOpen, values, onChange }) {
 
         <label htmlFor='trav-time'>Time:</label>
         <input
+          className='white-box'
           type='number'
           id='trav-time'
           min='0'

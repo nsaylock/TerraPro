@@ -1,35 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 import { getUIDate, getDayOfWeek, getTimeDisplay } from '../utils/dateTime';
 import '../css/JobCard.css';
 
-function TitleBar({ date }) {
+function TitleBar({ date, dailyHours }) {
+  const [stateHours, setStateHours] = useState(dailyHours);
   return (
     <div className='title-bar'>
-      <h3 style={{ marginRight: '10px' }}>{getUIDate(date)}</h3>
-      <h3>{getDayOfWeek(date)}</h3>
+      <div style={{display:'flex'}}>
+        <h3 style={{ marginRight: '10px' }}>{getUIDate(date)}</h3>
+        <h3>{getDayOfWeek(date)}</h3>
+      </div>
+      {dailyHours != null && (
+        <div style={{display:'flex'}}>
+          <h3>Hours: {dailyHours}</h3>
+        </div>
+      )}
+      
     </div>
   );
 }
 
 // ---- One timesheet entry. Owns its own "travel details" modal state. ----
 
-function JobEntry({ entry, onDelete }) {
+function JobEntry({ entry, onDelete, pullEntryHours }) {
   const navigate = useNavigate();
+  
+  
   const [travelOpen, setTravelOpen] = useState(false);
 
   const hasTravel = Boolean(entry.travelType);
   const totalHours = Number((Number(entry.onSiteHours) + Number(entry.totalTravelTime)).toFixed(2));
   const clockedOut = Number(entry.endTime) !== 0;
 
+  const pullRef = useRef(pullEntryHours);
+  useEffect(()=>{pullRef.current = pullEntryHours});
+  useEffect(()=>{pullRef.current?.(totalHours)},[])
+  
+
   return (
     <div className='job-week-view'>
       <div className='job'>
         <div style={{ textAlign: 'left' }}>
-          <h3 style={{ placeSelf: 'start' }}>
-            Hours<br />{totalHours}<br />
-          </h3>
+          <h3>{totalHours} {totalHours <= 1?'Hr':'Hrs'}</h3>
         </div>
 
         <div className='job-info'>
@@ -108,12 +122,16 @@ function JobEntry({ entry, onDelete }) {
 
 function JobCard({ data = [], date, onDelete }) {
   if (data.length === 0) return <TitleBar date={date} />;
+  const [dailyHours, setDailyHours] = useState(0);
+  const handleHours = useCallback((totalHours)=>{
+    setDailyHours(dailyHours + totalHours);
+  })
 
   return (
     <div className='entry'>
-      <TitleBar date={date} />
+      <TitleBar date={date} dailyHours={dailyHours}/>
       {data.map((entry) => (
-        <JobEntry key={entry.id} entry={entry} onDelete={onDelete} />
+        <JobEntry key={entry.id} entry={entry} onDelete={onDelete} pullEntryHours={handleHours} />
       ))}
     </div>
   );

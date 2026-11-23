@@ -173,7 +173,7 @@ function ClockOut({ BASE_URL }) {
   };
 
   return (
-    <div style={{ color: 'black', padding: '1rem' }}>
+    <div className='main-clock-out'>
       <h1>Clock Out</h1>
       <div className='clock-in-grid'>
         <label>Date:</label>

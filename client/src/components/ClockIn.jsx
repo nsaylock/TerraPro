@@ -119,16 +119,16 @@ function ClockIn({ BASE_URL }) {
         <TimeSelector header='Arrival to Site' pullTimeInteger={handleStartTime} />
 
         <span style={{ display: 'inline-block' }}><label>Job Name:</label></span>
-        <input type='text' value={form.projectName} onChange={onField('projectName')} />
+        <input className='white-box' type='text' value={form.projectName} onChange={onField('projectName')} />
 
         <label>Project #:</label>
-        <input type='text' value={form.projectNumber} onChange={onField('projectNumber')} />
+        <input className='white-box' type='text' value={form.projectNumber} onChange={onField('projectNumber')} />
 
         <label>Report #:</label>
-        <input type='text' value={form.reportNumber} onChange={onField('reportNumber')} />
+        <input className='white-box' type='text' value={form.reportNumber} onChange={onField('reportNumber')} />
 
         <span style={{ display: 'inline-block' }}><label>Service:</label></span>
-        <select name='service-performed' value={form.service} onChange={onField('service')}>
+        <select className='white-box' name='service-performed' value={form.service} onChange={onField('service')}>
           <option value='' style={{ color: 'rgba(0,0,0,0.5)' }}>Select Service</option>
           <option value='Concrete Testing'>Concrete Testing</option>
           <option value='Rebar Inspection'>Rebar Inspection</option>
@@ -137,21 +137,21 @@ function ClockIn({ BASE_URL }) {
         </select>
 
         <label>Include Travel?</label>
-        <span style={{ justifySelf: 'start' }}>
+        <span>
           <input
             type='radio'
             name='travel-radio'
             checked={travelOpen}
             onChange={() => handleTravelToggle(true)}
             style={{ marginLeft: '5px' }}
-          />Yes
+          /><p className='radio'>Yes</p>
           <input
             type='radio'
             name='travel-radio'
             checked={!travelOpen}
             onChange={() => handleTravelToggle(false)}
             style={{ marginLeft: '35px' }}
-          />No
+          /><p className='radio'>No</p>
         </span>
       </div>
 

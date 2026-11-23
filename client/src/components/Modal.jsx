@@ -25,7 +25,7 @@ function Modal({ isOpen, onClose, children }) {
     >
       <div className='modal-main' role='dialog' aria-modal='true'>
         <button type='button' className='modal-esc' aria-label='Close' onClick={onClose}>
-          &times;
+          <p>&times;</p>
         </button>
         {children}
       </div>

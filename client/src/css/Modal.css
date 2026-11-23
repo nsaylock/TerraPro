@@ -30,6 +30,9 @@
   border-style: none;
   background-color: rgb(51, 51, 51);
   color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-esc:hover {

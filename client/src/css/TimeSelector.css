@@ -1,20 +1,14 @@
 .time-box {
+  display: flex;
   border: 1px solid black;
-}
-
-.flex, .white-box { 
-  display: flex; 
-  justify-self: center;
+  border-radius: 5px;
+  color: var(--text-h);
+  justify-content: center;
   align-items: center;
 }
 
-.white-box {
-  background-color: white;
-  border: 1px solid black;
-  padding: 0 5px;
-  border-radius: 5px;
-  justify-self: start;
-  width: 96%;
+.edit-container > * {
+  margin: 0 0 0 8px;
 }
 
 .edit-btn {
@@ -27,17 +21,21 @@
 }
 
 .up-arrow {
-  height: 0.8rem;
-  width: 0.8rem;
+  height: 0.6rem;
+  width: 0.6rem;
   background-color: black;
   clip-path: polygon(50% 20%, 0% 100%, 100% 100%, 50% 20%);
+  border: 2px solid black;
+  border-radius: 2px;
 }
 
 .down-arrow {
-  height: 0.8rem;
-  width: 0.8rem;
+  height: 0.6rem;
+  width: 0.6rem;
   background-color: black;
   clip-path: polygon(0% 0%, 100% 0%, 50% 80%, 50% 80%);
+  border: 2px solid black;
+  border-radius: 2px;
 }
 
 .invis-btn {
