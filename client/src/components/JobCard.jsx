@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 import { getUIDate, getDayOfWeek, getTimeDisplay } from '../utils/dateTime';
+import { getEntryHours, sumHours } from '../utils/hours.js';
 import '../css/JobCard.css';
 
 function TitleBar({ date, dailyHours }) {
-  const [stateHours, setStateHours] = useState(dailyHours);
   return (
     <div className='title-bar'>
       <div style={{display:'flex'}}>
@@ -24,7 +24,7 @@ function TitleBar({ date, dailyHours }) {
 
 // ---- One timesheet entry. Owns its own "travel details" modal state. ----
 
-function JobEntry({ entry, onDelete, pullEntryHours }) {
+function JobEntry({ entry, onDelete }) {
   const navigate = useNavigate();
   
   
@@ -33,10 +33,6 @@ function JobEntry({ entry, onDelete, pullEntryHours }) {
   const hasTravel = Boolean(entry.travelType);
   const totalHours = Number((Number(entry.onSiteHours) + Number(entry.totalTravelTime)).toFixed(2));
   const clockedOut = Number(entry.endTime) !== 0;
-
-  const pullRef = useRef(pullEntryHours);
-  useEffect(()=>{pullRef.current = pullEntryHours});
-  useEffect(()=>{pullRef.current?.(totalHours)},[])
   
 
   return (
@@ -122,16 +118,12 @@ function JobEntry({ entry, onDelete, pullEntryHours }) {
 
 function JobCard({ data = [], date, onDelete }) {
   if (data.length === 0) return <TitleBar date={date} />;
-  const [dailyHours, setDailyHours] = useState(0);
-  const handleHours = useCallback((totalHours)=>{
-    setDailyHours(dailyHours + totalHours);
-  })
 
   return (
     <div className='entry'>
-      <TitleBar date={date} dailyHours={dailyHours}/>
+      <TitleBar date={date} dailyHours={sumHours(data)}/>
       {data.map((entry) => (
-        <JobEntry key={entry.id} entry={entry} onDelete={onDelete} pullEntryHours={handleHours} />
+        <JobEntry key={entry.id} entry={entry} onDelete={onDelete} />
       ))}
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import JobCard from './JobCard.jsx';
 import {getUIDate} from '../utils/dateTime.js';
+import { sumHours } from '../utils/hours.js';
 import '../css/Timesheet.css';
 
 function formatDate(date) {
@@ -22,9 +23,12 @@ function getWeekDates(seek) {
 }
 
 function TimeDB({ BASE_URL }) {
+
   const [seek, setSeek] = useState(0);
   const [timesheet, setTimesheet] = useState(null); // null = not loaded yet
   const [error, setError] = useState(null);
+  const weeklyHours = sumHours(timesheet ?? []);
+
 
   const weekDates = useMemo(() => getWeekDates(seek), [seek]);
   const start = weekDates[0];
@@ -71,6 +75,8 @@ function TimeDB({ BASE_URL }) {
     }
   };
 
+  
+
   return (
     <div className='ts-main'>
       <nav className='ts-seek'>
@@ -79,6 +85,7 @@ function TimeDB({ BASE_URL }) {
         <button onClick={() => setSeek((s) => s + 1)}>Next</button>
       </nav>
       <h3 style={{color: 'var(--text)'}}>{getUIDate(start)} - {getUIDate(end)}</h3>
+      <h3 style={{color:'var(--text)'}}>Total Hours: {weeklyHours}</h3>
 
       {error && <p>Error: {error}</p>}
       {timesheet === null && !error && <p>Loading...</p>}

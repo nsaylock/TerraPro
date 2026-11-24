@@ -3,6 +3,7 @@ button {
   border-radius: 15px;
   border-width: 1px;
   border: none;
+  color: var(--text-h);
   background: var(--btn);
   transition: background 0.2s ease;
 }
