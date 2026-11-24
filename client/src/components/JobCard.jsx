@@ -24,76 +24,85 @@ function TitleBar({ date, dailyHours }) {
 
 // ---- One timesheet entry. Owns its own "travel details" modal state. ----
 
-function JobEntry({ entry, onDelete }) {
+function JobEntry({ job, onDelete }) {
   const navigate = useNavigate();
   
   
   const [travelOpen, setTravelOpen] = useState(false);
 
-  const hasTravel = Boolean(entry.travelType);
-  const totalHours = Number((Number(entry.onSiteHours) + Number(entry.totalTravelTime)).toFixed(2));
-  const clockedOut = Number(entry.endTime) !== 0;
+  const hasTravel = Boolean(job.travelType);
+  const totalHours = Number((Number(job.onSiteHours) + Number(job.totalTravelTime)).toFixed(2));
+  const clockedOut = Number(job.endTime) !== 0;
   
 
   return (
-    <div className='job-week-view'>
-      <div className='job'>
-        <div style={{ textAlign: 'left' }}>
-          <h3>{totalHours} {totalHours <= 1?'Hr':'Hrs'}</h3>
+    <div className='job-details'>
+      <p className='job-hrs'>{totalHours}</p>
+      <div className='job-grid'>
+        <div className='job-info-col'>
+          <h3 className='col-header'>{job.projectName}</h3>
+          <p><strong>Project: {job.projectNumber}</strong></p>
+          <p><strong>Report: {job.reportNumber}</strong></p>
+          <p>{job.service}</p>
+          <p>Structure or Location</p>
+          <p>Cylinders</p>
         </div>
 
-        <div className='job-info'>
-          <p><strong>{entry.projectName}</strong></p>
-          <p>{entry.service}</p>
-          <p>Start: {getTimeDisplay(entry.startTime)}</p>
-          <p>End: {clockedOut ? getTimeDisplay(entry.endTime) : '-------'}</p>
-          <p>On-Site: {entry.onSiteHours} hrs</p>
+        <div className='job-info-col'>
+          <h3 className='col-header'>Time</h3>
+          <p>Start: {getTimeDisplay(job.startTime)}</p>
+          <p>End: {clockedOut ? getTimeDisplay(job.endTime) : '-------'}</p>
+          <p>On-Site: {job.onSiteHours} hrs</p>
+          
+          <button
+            type='button'
+            className='ts-btn'
+            style={{ background: 'var(--danger)' }}
+            onClick={() =>
+              navigate('/clock-out', {
+                state: { id: job.id, startTime: job.startTime, service: job.service },
+              })
+            }
+          >
+            Clock Out
+          </button>
         </div>
 
-        <div className='job-info'>
-          <p>Project: {entry.projectNumber}</p>
-          <p>Report: {entry.reportNumber}</p>
+        <div className='job-info-col'>
+          <h3 className='col-header'>Travel</h3>
           <p>
-            Travel: {hasTravel ? entry.travelType : 'None'}
+            {hasTravel ? job.travelType : 'None'}
             {hasTravel && (
               <button type='button' className='info-btn' onClick={() => setTravelOpen(true)}>
                 Show
               </button>
             )}
           </p>
-          {hasTravel && <p>Mileage: {entry.totalMiles} mi</p>}
-          {hasTravel && <p>Time: {entry.totalTravelTime} hrs</p>}
+          {hasTravel && <p>Mileage: {job.totalMiles} mi</p>}
+          {hasTravel && <p>Time: {job.totalTravelTime} hrs</p>}
+          <button className='ts-btn'>Add Travel</button>
         </div>
 
-        <div className='entry-controls'>
+        <div className='job-controls'>
           <button
             type='button'
-            className='edit-btn'
-            onClick={() => alert("Can't edit yet")}
-          >
-            Edit
-          </button>
-          <button
-            type='button'
-            className='edit-btn'
-            style={{ background: 'lightblue' }}
-            onClick={() =>
-              navigate('/clock-out', {
-                state: { id: entry.id, startTime: entry.startTime, service: entry.service },
-              })
-            }
-          >
-            Clock Out
-          </button>
-          <button
-            type='button'
-            className='edit-btn'
-            style={{ background: 'indianred' }}
+            className='ts-btn'
+            style={{ backgroundColor: 'var(--danger)' }}
             onClick={() => alert("Reports aren't available yet")}
           >
             Report
           </button>
-          <button type='button' className='danger-btn' onClick={() => onDelete(entry.id)}>
+          <button
+            type='button'
+            className='ts-btn'
+            onClick={() => alert("Can't edit yet")}
+          >
+            Edit
+          </button>
+          
+          <button type='button' className='ts-btn' 
+            style={{backgroundColor: 'orange'}}
+            onClick={() => onDelete(job.id)}>
             Delete
           </button>
         </div>
@@ -102,11 +111,11 @@ function JobEntry({ entry, onDelete }) {
       <Modal isOpen={travelOpen} onClose={() => setTravelOpen(false)}>
         <div style={{ color: 'black' }}>
           <h2>Travel Details</h2>
-          <p>Type: {entry.travelType}</p>
-          {entry.toSiteStart && <p>From: {entry.toSiteStart}</p>}
-          {entry.toSiteEnd && <p>To: {entry.toSiteEnd}</p>}
-          <p>Mileage: {entry.totalMiles} mi</p>
-          <p>Time: {entry.totalTravelTime} hrs</p>
+          <p>Type: {job.travelType}</p>
+          {job.toSiteStart && <p>From: {job.toSiteStart}</p>}
+          {job.toSiteEnd && <p>To: {job.toSiteEnd}</p>}
+          <p>Mileage: {job.totalMiles} mi</p>
+          <p>Time: {job.totalTravelTime} hrs</p>
           <button type='button' onClick={() => setTravelOpen(false)}>Close</button>
         </div>
       </Modal>
@@ -120,10 +129,10 @@ function JobCard({ data = [], date, onDelete }) {
   if (data.length === 0) return <TitleBar date={date} />;
 
   return (
-    <div className='entry'>
+    <div className='job-container'>
       <TitleBar date={date} dailyHours={sumHours(data)}/>
-      {data.map((entry) => (
-        <JobEntry key={entry.id} entry={entry} onDelete={onDelete} />
+      {data.map((job) => (
+        <JobEntry key={job.id} job={job} onDelete={onDelete} />
       ))}
     </div>
   );

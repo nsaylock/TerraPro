@@ -1,12 +1,12 @@
 const express = require('express');
-const { samplesDb } = require('../config/databases');
+const { samples } = require('../config/databases');
 const router = express.Router();
 
 // Prepare statements once
 const stmts = {
-  all: samplesDb.prepare('SELECT * FROM samples ORDER BY castDate'),
-  get: samplesDb.prepare('SELECT * FROM samples WHERE id = ?'),
-  insert: samplesDb.prepare(`INSERT INTO samples (
+  all: samples.prepare('SELECT * FROM samples ORDER BY castDate'),
+  get: samples.prepare('SELECT * FROM samples WHERE id = ?'),
+  insert: samples.prepare(`INSERT INTO samples (
     projectName,
     projectNumber,
     reportNumber,
@@ -22,7 +22,7 @@ const stmts = {
     dropOffLocation
     ) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
-  update: samplesDb.prepare(`UPDATE samples 
+  update: samples.prepare(`UPDATE samples 
     SET 
     pickUpDate = ?,
     pickUpTime = ?,
@@ -31,7 +31,7 @@ const stmts = {
     highTemp = ?,
     lowTemp = ?
     WHERE id = ?`),
-  remove: samplesDb.prepare('DELETE FROM samples WHERE id = ?'),
+  remove: samples.prepare('DELETE FROM samples WHERE id = ?'),
 };
 
 router.get('/', (req, res) => {

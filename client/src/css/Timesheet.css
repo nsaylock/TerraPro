@@ -4,10 +4,13 @@
   position: static;
   color: black;
   padding: 1rem;
+  align-items: center;
 }
 
 .ts-seek {
   display: flex;
+  width: 100%;
+  max-width: 700px;
   justify-content: space-between;
   font-size: 14px;
 }

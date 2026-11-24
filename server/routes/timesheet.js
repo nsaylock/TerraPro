@@ -1,26 +1,26 @@
 const express = require('express');
-const { timesheetDb } = require('../config/databases');
+const { timesheet } = require('../config/databases');
 const router = express.Router();
 
 // Prepare statements once
 const stmts = {
-  all: timesheetDb.prepare('SELECT * FROM timesheet ORDER BY date'),
-  get: timesheetDb.prepare('SELECT * FROM timesheet WHERE id = ?'),
-  queryByDate: timesheetDb.prepare(`
+  all: timesheet.prepare('SELECT * FROM timesheet ORDER BY date'),
+  get: timesheet.prepare('SELECT * FROM timesheet WHERE id = ?'),
+  queryByDate: timesheet.prepare(`
       SELECT * FROM timesheet
       WHERE date >= ? AND date <= ?
       ORDER BY date ASC
     `),
-  insert: timesheetDb.prepare(`INSERT INTO timesheet (
-    projectName, projectNumber, reportNumber, date, startTime, endTime,
-    onSiteHours, service, travelType, toSiteStart, toSiteEnd,
+  insert: timesheet.prepare(`INSERT INTO timesheet (
+    date, projectName, projectNumber, reportNumber, role, task, startTime, endTime,
+    onSiteHours, travelType, toSiteStart, toSiteEnd,
     fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
     totalMiles, timeToSite, timeFromSite, totalTravelTime
     ) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
   // travelType uses COALESCE so a clock out that doesn't send one leaves the
   // existing value alone
-  update: timesheetDb.prepare(`UPDATE timesheet 
+  update: timesheet.prepare(`UPDATE timesheet 
     SET 
     endTime = ?,
     onSiteHours = ?,
@@ -32,7 +32,7 @@ const stmts = {
     totalTravelTime = ?,
     travelType = COALESCE(?, travelType)
     WHERE id = ?`),
-  remove: timesheetDb.prepare('DELETE FROM timesheet WHERE id = ?'),
+  remove: timesheet.prepare('DELETE FROM timesheet WHERE id = ?'),
 };
 
 router.get('/', (req, res, next) => {
@@ -51,7 +51,7 @@ router.get('/period', (req, res) => {
   try {
     res.json(stmts.queryByDate.all(periodStart, periodEnd));
   } catch (err) {
-    console.error('Database query failed', err);
+    console.error('Timesheet Database query failed', err);
     res.status(500).json({error: 'Internal server error'});
   }
 
@@ -68,8 +68,8 @@ router.get('/:id', (req, res, next) => {
 router.post('/', (req, res, next) => {
   try {
     const { 
-      projectName, projectNumber, reportNumber, date, 
-      startTime, endTime, onSiteHours, service,
+      date, projectName, projectNumber, reportNumber, role, task, 
+      startTime, endTime, onSiteHours,
       travelType, toSiteStart, toSiteEnd,
       fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
       totalMiles, timeToSite, timeFromSite, totalTravelTime
@@ -80,15 +80,15 @@ router.post('/', (req, res, next) => {
       return res.status(400).json({ error: 'Date and Start Time required' });
     }
     const entry = stmts.insert.run(
-      projectName, projectNumber, reportNumber, date, 
-      startTime, endTime, onSiteHours, service,
+      date, projectName, projectNumber, reportNumber, role, task,
+      startTime, endTime, onSiteHours,
       travelType, toSiteStart, toSiteEnd,
       fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
       totalMiles, timeToSite, timeFromSite, totalTravelTime
     );
     res.status(201).json({ id: entry.lastInsertRowid, 
-      projectName, projectNumber, reportNumber, date, 
-      startTime, endTime, onSiteHours, service,
+      date, projectName, projectNumber, reportNumber, role, task,
+      startTime, endTime, onSiteHours,
       travelType, toSiteStart, toSiteEnd,
       fromSiteStart, fromSiteEnd, milesToSite, milesFromSite,
       totalMiles, timeToSite, timeFromSite, totalTravelTime

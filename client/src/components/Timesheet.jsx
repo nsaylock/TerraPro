@@ -22,7 +22,7 @@ function getWeekDates(seek) {
   });
 }
 
-function TimeDB({ BASE_URL }) {
+function Timesheet({ BASE_URL }) {
 
   const [seek, setSeek] = useState(0);
   const [timesheet, setTimesheet] = useState(null); // null = not loaded yet
@@ -103,4 +103,4 @@ function TimeDB({ BASE_URL }) {
   );
 }
 
-export default TimeDB;
+export default Timesheet;

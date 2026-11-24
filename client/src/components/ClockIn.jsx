@@ -19,14 +19,15 @@ const NO_TRAVEL = {
 };
 
 const INITIAL_FORM = {
+  date: '',
   projectName: '',
   projectNumber: '',
   reportNumber: '',
-  date: '',
+  role: '',
+  task: '',
   startTime: 0,
   endTime: 0,
   onSiteHours: 0,
-  service: '',
   ...NO_TRAVEL,
 };
 
@@ -128,7 +129,7 @@ function ClockIn({ BASE_URL }) {
         <input className='white-box' type='text' value={form.reportNumber} onChange={onField('reportNumber')} />
 
         <span style={{ display: 'inline-block' }}><label>Service:</label></span>
-        <select className='white-box' name='service-performed' value={form.service} onChange={onField('service')}>
+        <select className='white-box' name='role' value={form.role} onChange={onField('role')}>
           <option value='' style={{ color: 'rgba(0,0,0,0.5)' }}>Select Service</option>
           <option value='Concrete Testing'>Concrete Testing</option>
           <option value='Rebar Inspection'>Rebar Inspection</option>

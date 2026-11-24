@@ -24,21 +24,23 @@ function addColumnIfMissing(db, table, column, type) {
   if (!exists) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
 }
 
-const timesheetDb = createDB('timesheet', 'timesheet.db');
-const samplesDb = createDB('samples', 'samples.db');
+const timesheet = createDB('timesheet', 'timesheet.db');
+const samples = createDB('samples', 'samples.db');
+const schedule = createDB('schedule', schedule.db);
 
 // Initialize schemas
-timesheetDb.exec(`
+timesheet.exec(`
   CREATE TABLE IF NOT EXISTS timesheet (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
     projectName TEXT,
     projectNumber TEXT,
     reportNumber TEXT,
-    date TEXT NOT NULL,
+    role TEXT,
+    task TEXT,
     startTime TEXT NOT NULL,
     endTime TEXT,
     onSiteHours REAL,
-    service TEXT,
     travelType TEXT,
     toSiteStart TEXT,
     toSiteEnd TEXT,
@@ -54,7 +56,7 @@ timesheetDb.exec(`
   )
 `);
 
-samplesDb.exec(`
+samples.exec(`
   CREATE TABLE IF NOT EXISTS samples (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     projectName TEXT NOT NULL,
@@ -75,9 +77,27 @@ samplesDb.exec(`
   )
 `);
 
+schedule.exec(`
+  CREATE TABLE IF NOT EXISTS schedule (
+  id INTEGER PRIMARY AUTOINCREMENT,
+  date TEXT NOT NULL,
+  projectName TEXT,
+  projectNumber TEXT,
+  reportNumber TEXT,
+  role TEXT,
+  task TEXT,
+  location TEXT,
+  description TEXT,
+  assignedEmployee INTEGER,
+  sets INTEGER,
+  setSize INTEGER,
+  timeNeeded TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+)`);
+
 // Migrations for databases created before these columns existed.
 // Existing rows get NULL, which the UI shows as "—".
-addColumnIfMissing(samplesDb, 'samples', 'highTemp', 'REAL');
-addColumnIfMissing(samplesDb, 'samples', 'lowTemp', 'REAL');
+// addColumnIfMissing(samples, 'samples', 'highTemp', 'REAL');
+// addColumnIfMissing(samples, 'samples', 'lowTemp', 'REAL');
 
-module.exports = { timesheetDb, samplesDb };
+module.exports = { timesheet, samples, schedule };
