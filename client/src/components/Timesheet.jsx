@@ -26,6 +26,7 @@ function Timesheet({ BASE_URL }) {
 
   const [seek, setSeek] = useState(0);
   const [timesheet, setTimesheet] = useState(null); // null = not loaded yet
+  const [schedule, setSchedule] = useState(null);
   const [error, setError] = useState(null);
   const weeklyHours = sumHours(timesheet ?? []);
 
@@ -37,6 +38,7 @@ function Timesheet({ BASE_URL }) {
   useEffect(() => {
     const controller = new AbortController();
     setTimesheet(null);
+    setSchedule(null);
     setError(null);
 
     const url = new URL(`${BASE_URL}/timesheet/period`);

@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DateSelector from './DateSelector';
 import TimeSelector from './TimeSelector';
-import Travel from './Travel';
 import '../css/ClockIn.css';
 
 const INITIAL_FORM = {
@@ -20,6 +19,22 @@ const INITIAL_FORM = {
   setSize: 0,
   timeNeeded: 0
 };
+
+const INITIAL_TIMESHEET = {
+  startTime: '',
+  endTime: '',
+  onSiteHours: '',
+  travelType: '',
+  toSiteStart: '',
+  toSiteEnd: '',
+  fromSiteStart: '',
+  fromSiteEnd: '',
+  // Number fields are strings while the user types; converted on submit
+  milesToSite: '',
+  milesFromSite: '',
+  timeToSite: '',
+  timeFromSite: '',
+}
 
 function CreateJob({ BASE_URL }) {
   const navigate = useNavigate();
@@ -53,6 +68,16 @@ function CreateJob({ BASE_URL }) {
     setSubmitting(true);
     setError(null);
 
+    const Timesheet = {
+      date: form.date,
+      projectName: form.projectName,
+      projectNumber: form.projectNumber,
+      reportNumber: form.reportNumber,
+      role: form.role,
+      task: form.task,
+      ...INITIAL_TIMESHEET
+    };
+
     const payload = { ...form };
 
     try {
@@ -63,7 +88,17 @@ function CreateJob({ BASE_URL }) {
       });
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to add new job | 0546aa');
+        throw new Error(data.error || 'Failed to add new job to schedule | 0546aa');
+      }
+
+      const response2 = await fetch(`${BASE_URL}/timesheet`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data2 = await response2.json();
+      if (!response.ok) {
+        throw new Error(data2.error || 'Failed to add to Timesheet | 0546bb');
       }
       navigate('/timesheet'); // only leave the page if the save worked
     } catch (err) {
@@ -108,7 +143,10 @@ function CreateJob({ BASE_URL }) {
         <label>Description:</label>
         <input className='white-box' type='text' value={form.description} onChange={onField('description')} />
         <label>Assign Employee:</label>
-        <input className='white-box' type='integer' value={form.assignedEmployee} onChange={onField('assignedEmployee')} />
+        <select className='white-box' name='assign-employee' value={form.assignedEmployee} onChange={onField('assignedEmployee')}>
+          <option value='' style={{ color: 'rgba(0,0,0,0.5)' }}>Select Employee</option>
+          <option value='276067'>Nick Saylock</option>
+        </select>
 
         {/* If samples needed */}
 
