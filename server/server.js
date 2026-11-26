@@ -7,6 +7,7 @@ const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const timesheetRoutes = require('./routes/timesheet');
 const samplesRoutes = require('./routes/samples');
+const scheduleRoutes = require('./routes/schedule');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(logger);
 
 app.use('/api/timesheet', timesheetRoutes);
 app.use('/api/samples', samplesRoutes);
+app.use('/api/schedule', scheduleRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

@@ -1,8 +1,13 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
+
+const dataDir = path.join(__dirname, '..', 'data');
+// better-sqlite3 creates the .db file but not its folder, so make sure it exists.
+fs.mkdirSync(dataDir, { recursive: true });
 
 function createDB(name, file) {
-  const dbPath = path.join(__dirname, '..', 'data', file);
+  const dbPath = path.join(dataDir, file);
   const db = new Database(dbPath);
 
   db.pragma('journal_mode = WAL');
@@ -26,12 +31,13 @@ function addColumnIfMissing(db, table, column, type) {
 
 const timesheet = createDB('timesheet', 'timesheet.db');
 const samples = createDB('samples', 'samples.db');
-const schedule = createDB('schedule', schedule.db);
+const schedule = createDB('schedule', 'schedule.db');
 
 // Initialize schemas
 timesheet.exec(`
   CREATE TABLE IF NOT EXISTS timesheet (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    scheduleId INTEGER,
     date TEXT NOT NULL,
     projectName TEXT,
     projectNumber TEXT,
@@ -79,7 +85,7 @@ samples.exec(`
 
 schedule.exec(`
   CREATE TABLE IF NOT EXISTS schedule (
-  id INTEGER PRIMARY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   date TEXT NOT NULL,
   projectName TEXT,
   projectNumber TEXT,
@@ -89,6 +95,7 @@ schedule.exec(`
   location TEXT,
   description TEXT,
   assignedEmployee INTEGER,
+  sampleType TEXT,
   sets INTEGER,
   setSize INTEGER,
   timeNeeded TEXT,

@@ -90,7 +90,7 @@ function ClockOut({ BASE_URL }) {
 
   // ---- Everything below is derived from entry + the user's choices ----
   const hasOutbound = Boolean(entry.toSiteStart && entry.toSiteEnd);
-  const isConcrete = entry.service === 'Concrete Testing';
+  const isConcrete = entry.role === 'Concrete Testing';
   const submitSamples = isConcrete && samplesOpen;
 
   const onSiteHours = endTime === null ? 0 : calculateHours(Number(entry.startTime), endTime);
@@ -99,7 +99,10 @@ function ClockOut({ BASE_URL }) {
   const totalTravelTime = round2(toNumber(entry.timeToSite) + returnTrip.timeFromSite);
 
   let blocker = null;
-  if (submitSamples && !(Number(sets) > 0 && Number(setSize) > 0)) {
+  if (submitSamples && !entry.projectNumber) {
+    // The samples route requires a project number
+    blocker = 'This entry has no project number, which samples require. Select No for specimens, or re-enter the job with a project number.';
+  } else if (submitSamples && !(Number(sets) > 0 && Number(setSize) > 0)) {
     blocker = 'Enter the number of sets and samples per set.';
   } else if (
     returnMode === 'new' &&
@@ -173,7 +176,7 @@ function ClockOut({ BASE_URL }) {
   };
 
   return (
-    <div className='main-clock-out'>
+    <div style={{ color: 'black', padding: '1rem' }}>
       <h1>Clock Out</h1>
       <div className='clock-in-grid'>
         <label>Date:</label>

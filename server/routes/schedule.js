@@ -23,7 +23,11 @@ const stmts = {
   get: schedule.prepare('SELECT * FROM schedule WHERE id = ?'),
   queryByDate: schedule.prepare(`
     SELECT * FROM schedule
-    WHERE data >= ? AND date <= ?
+    WHERE date >= ? AND date <= ?
+    ORDER BY date ASC`),
+  queryByEmployeeAndDate: schedule.prepare(`
+    SELECT * FROM schedule
+    WHERE assignedEmployee = ? AND date >= ? AND date <= ?
     ORDER BY date ASC`),
   insert: schedule.prepare(`INSERT INTO schedule (
     date,
@@ -69,18 +73,36 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/period', (req, res) => {
-  const { period_start, period_end } = req.query;
-  if (!period_start || !period_end) {
+  const { periodStart, periodEnd } = req.query;
+  if (!periodStart || !periodEnd) {
     return res.status(400).json({error: 'Period start and end are required'});
   }
 
   try {
-    res.json(stmts.queryByDate.all(period_start, period_end));
+    res.json(stmts.queryByDate.all(periodStart, periodEnd));
   } catch (err) {
     console.error('Schedule Database query failed', err);
     res.status(500).json({error: 'Internal server error'});
   }
 
+});
+
+// Get one employee's schedule for a period
+// GET /api/schedule/employee/:employeeId?periodStart=YYYY-MM-DD&periodEnd=YYYY-MM-DD
+// Must stay above '/:id' or Express would treat "employee" as an id.
+router.get('/employee/:employeeId', (req, res) => {
+  const { employeeId } = req.params;
+  const { periodStart, periodEnd } = req.query;
+  if (!periodStart || !periodEnd) {
+    return res.status(400).json({error: 'Period start and end are required'});
+  }
+
+  try {
+    res.json(stmts.queryByEmployeeAndDate.all(employeeId, periodStart, periodEnd));
+  } catch (err) {
+    console.error('Schedule Database query failed', err);
+    res.status(500).json({error: 'Internal server error'});
+  }
 });
 
 router.get('/:id', (req, res, next) => {
@@ -177,7 +199,8 @@ router.put('/:id', (req,res,next) => {
       sampleType,
       sets,
       setSize,
-      timeNeeded
+      timeNeeded,
+      req.params.id
     );
     if (entry.changes === 0) return res.status(404).json({error: 'Entry not found 21eso82'});
 

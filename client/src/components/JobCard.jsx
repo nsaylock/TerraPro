@@ -2,85 +2,106 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from './Modal';
 import { getUIDate, getDayOfWeek, getTimeDisplay } from '../utils/dateTime';
-import { getEntryHours, sumHours } from '../utils/hours.js';
+import { getEntryHours, sumHours } from '../utils/hours';
 import '../css/JobCard.css';
 
 function TitleBar({ date, dailyHours }) {
   return (
     <div className='title-bar'>
-      <div style={{display:'flex'}}>
+      <div style={{ display: 'flex' }}>
         <h3 style={{ marginRight: '10px' }}>{getUIDate(date)}</h3>
         <h3>{getDayOfWeek(date)}</h3>
       </div>
       {dailyHours != null && (
-        <div style={{display:'flex'}}>
+        <div style={{ display: 'flex' }}>
           <h3>Hours: {dailyHours}</h3>
         </div>
       )}
-      
     </div>
   );
 }
 
-// ---- One timesheet entry. Owns its own "travel details" modal state. ----
-
-function JobEntry({ job, onDelete }) {
+// One scheduled job. `job` comes from the schedule table, `entry` from the
+// timesheet table. entry is null until the employee clocks in, and job is null
+// for old entries that were created before the schedule existed.
+function JobItem({ job, entry, onClockIn, onAddTravel, onDelete }) {
   const navigate = useNavigate();
-  
-  
   const [travelOpen, setTravelOpen] = useState(false);
 
-  const hasTravel = Boolean(job.travelType);
-  const totalHours = Number((Number(job.onSiteHours) + Number(job.totalTravelTime)).toFixed(2));
-  const clockedOut = Number(job.endTime) !== 0;
-  
+  const info = job ?? entry; // fields both tables share
+  const clockedIn = entry !== null;
+  const clockedOut = clockedIn && Number(entry.endTime) !== 0;
+  const hasTravel = clockedIn && Boolean(entry.travelType);
+  const hours = clockedIn ? getEntryHours(entry) : 0;
 
   return (
     <div className='job-details'>
-      <p className='job-hrs'>{totalHours}</p>
+      {clockedIn && <p className='job-hrs'>{hours}</p>}
       <div className='job-grid'>
         <div className='job-info-col'>
-          <h3 className='col-header'>{job.projectName}</h3>
-          <p><strong>Project: {job.projectNumber}</strong></p>
-          <p><strong>Report: {job.reportNumber}</strong></p>
-          <p>{job.service}</p>
-          <p>Structure or Location</p>
-          <p>Cylinders</p>
+          <h3 className='col-header'>{info.projectName}</h3>
+          <p><strong>Project: {info.projectNumber}</strong></p>
+          <p><strong>Report: {info.reportNumber}</strong></p>
+          {info.role && <p>{info.role}</p>}
+          {info.task && <p>Task: {info.task}</p>}
+          {job?.location && <p>Location: {job.location}</p>}
+          {job?.description && <p>{job.description}</p>}
         </div>
 
         <div className='job-info-col'>
           <h3 className='col-header'>Time</h3>
-          <p>Start: {getTimeDisplay(job.startTime)}</p>
-          <p>End: {clockedOut ? getTimeDisplay(job.endTime) : '-------'}</p>
-          <p>On-Site: {job.onSiteHours} hrs</p>
-          
-          <button
-            type='button'
-            className='ts-btn'
-            style={{ background: 'var(--danger)' }}
-            onClick={() =>
-              navigate('/clock-out', {
-                state: { id: job.id, startTime: job.startTime, service: job.service },
-              })
-            }
-          >
-            Clock Out
-          </button>
+          {clockedIn ? (
+            <>
+              <p>Start: {getTimeDisplay(entry.startTime)}</p>
+              <p>End: {clockedOut ? getTimeDisplay(entry.endTime) : '-------'}</p>
+              <p>On-Site: {entry.onSiteHours} hrs</p>
+            </>
+          ) : (
+            <>
+              <p>Scheduled</p>
+              {job?.timeNeeded != null && <p>Needed: {getTimeDisplay(Number(job.timeNeeded))}</p>}
+            </>
+          )}
+
+          {!clockedIn && (
+            <button
+              type='button'
+              className='ts-btn'
+              style={{ background: 'lightgreen' }}
+              onClick={() => onClockIn(job)}
+            >
+              Clock In
+            </button>
+          )}
+          {clockedIn && !clockedOut && (
+            <button
+              type='button'
+              className='ts-btn'
+              style={{ background: 'var(--danger)' }}
+              onClick={() => navigate('/clock-out', { state: { id: entry.id } })}
+            >
+              Clock Out
+            </button>
+          )}
         </div>
 
         <div className='job-info-col'>
           <h3 className='col-header'>Travel</h3>
           <p>
-            {hasTravel ? job.travelType : 'None'}
+            {hasTravel ? entry.travelType : 'None'}
             {hasTravel && (
               <button type='button' className='info-btn' onClick={() => setTravelOpen(true)}>
                 Show
               </button>
             )}
           </p>
-          {hasTravel && <p>Mileage: {job.totalMiles} mi</p>}
-          {hasTravel && <p>Time: {job.totalTravelTime} hrs</p>}
-          <button className='ts-btn'>Add Travel</button>
+          {hasTravel && <p>Mileage: {entry.totalMiles} mi</p>}
+          {hasTravel && <p>Time: {entry.totalTravelTime} hrs</p>}
+          {clockedIn && !clockedOut && (
+            <button type='button' className='ts-btn' onClick={() => onAddTravel(entry)}>
+              {hasTravel ? 'Edit Travel' : 'Add Travel'}
+            </button>
+          )}
         </div>
 
         <div className='job-controls'>
@@ -99,40 +120,54 @@ function JobEntry({ job, onDelete }) {
           >
             Edit
           </button>
-          
-          <button type='button' className='ts-btn' 
-            style={{backgroundColor: 'orange'}}
-            onClick={() => onDelete(job.id)}>
-            Delete
-          </button>
+          {clockedIn && (
+            <button
+              type='button'
+              className='ts-btn'
+              style={{ backgroundColor: 'orange' }}
+              onClick={() => onDelete(entry.id)}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
 
-      <Modal isOpen={travelOpen} onClose={() => setTravelOpen(false)}>
-        <div style={{ color: 'black' }}>
-          <h2>Travel Details</h2>
-          <p>Type: {job.travelType}</p>
-          {job.toSiteStart && <p>From: {job.toSiteStart}</p>}
-          {job.toSiteEnd && <p>To: {job.toSiteEnd}</p>}
-          <p>Mileage: {job.totalMiles} mi</p>
-          <p>Time: {job.totalTravelTime} hrs</p>
-          <button type='button' onClick={() => setTravelOpen(false)}>Close</button>
-        </div>
-      </Modal>
+      {hasTravel && (
+        <Modal isOpen={travelOpen} onClose={() => setTravelOpen(false)}>
+          <div style={{ color: 'black' }}>
+            <h2>Travel Details</h2>
+            <p>Type: {entry.travelType}</p>
+            {entry.toSiteStart && <p>From: {entry.toSiteStart}</p>}
+            {entry.toSiteEnd && <p>To: {entry.toSiteEnd}</p>}
+            <p>Mileage: {entry.totalMiles} mi</p>
+            <p>Time: {entry.totalTravelTime} hrs</p>
+            <button type='button' onClick={() => setTravelOpen(false)}>Close</button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
 
-// ---- One day: a title bar, plus an entry for each job on that day ----
+// One day: a title bar plus an item for each job. Each item is { job, entry }.
+function JobCard({ items = [], date, onClockIn, onAddTravel, onDelete }) {
+  if (items.length === 0) return <TitleBar date={date} />;
 
-function JobCard({ data = [], date, onDelete }) {
-  if (data.length === 0) return <TitleBar date={date} />;
+  const entries = items.map((i) => i.entry).filter(Boolean);
 
   return (
     <div className='job-container'>
-      <TitleBar date={date} dailyHours={sumHours(data)}/>
-      {data.map((job) => (
-        <JobEntry key={job.id} job={job} onDelete={onDelete} />
+      <TitleBar date={date} dailyHours={sumHours(entries)} />
+      {items.map(({ job, entry }) => (
+        <JobItem
+          key={job ? `job-${job.id}` : `entry-${entry.id}`}
+          job={job}
+          entry={entry}
+          onClockIn={onClockIn}
+          onAddTravel={onAddTravel}
+          onDelete={onDelete}
+        />
       ))}
     </div>
   );

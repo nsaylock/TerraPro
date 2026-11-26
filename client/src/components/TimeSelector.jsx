@@ -12,10 +12,23 @@ const getNow = () => {
   return { hour24: now.getHours(), minute: now.getMinutes() };
 };
 
-function TimeSelector({ header, pullTimeInteger }) {
+// 1330 -> { hour24: 13, minute: 30 }
+const fromMilitary = (military) => ({
+  hour24: Math.floor(military / 100) % 24,
+  minute: military % 100,
+});
+
+// initialTime: optional military integer to start at. Without it the
+// selector starts at the current time.
+function TimeSelector({ header, pullTimeInteger, initialTime }) {
   // The only stored time is a 24-hour hour and a minute.
   // The 12-hour display, AM/PM and military integer are all derived.
-  const [time, setTime] = useState(getNow);
+  const [time, setTime] = useState(() => {
+    const start = Number(initialTime);
+    return initialTime != null && initialTime !== '' && Number.isFinite(start)
+      ? fromMilitary(start)
+      : getNow();
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const { hour24, minute } = time;
 

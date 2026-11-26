@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import JobCard from './JobCard.jsx';
-import {getUIDate} from '../utils/dateTime.js';
+import ClockInModal from './ClockInModal.jsx';
+import AddTravelModal from './AddTravelModal.jsx';
+import { getUIDate } from '../utils/dateTime.js';
 import { sumHours } from '../utils/hours.js';
 import '../css/Timesheet.css';
 
@@ -22,14 +24,20 @@ function getWeekDates(seek) {
   });
 }
 
-function Timesheet({ BASE_URL }) {
+async function getJson(url, signal) {
+  const res = await fetch(url, { signal });
+  if (!res.ok) throw new Error(`Server returned ${res.status}`);
+  return res.json();
+}
 
+function Timesheet({ BASE_URL, employeeId = 276067 }) {
   const [seek, setSeek] = useState(0);
-  const [timesheet, setTimesheet] = useState(null); // null = not loaded yet
-  const [schedule, setSchedule] = useState(null);
+  const [schedule, setSchedule] = useState(null); // null = not loaded yet
+  const [timesheet, setTimesheet] = useState(null);
   const [error, setError] = useState(null);
-  const weeklyHours = sumHours(timesheet ?? []);
 
+  const [clockInJob, setClockInJob] = useState(null); // schedule row being clocked in to
+  const [travelEntry, setTravelEntry] = useState(null); // timesheet entry getting travel
 
   const weekDates = useMemo(() => getWeekDates(seek), [seek]);
   const start = weekDates[0];
@@ -37,38 +45,74 @@ function Timesheet({ BASE_URL }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    setTimesheet(null);
     setSchedule(null);
+    setTimesheet(null);
     setError(null);
 
-    const url = new URL(`${BASE_URL}/timesheet/period`);
-    url.searchParams.append('periodStart', start);
-    url.searchParams.append('periodEnd', end);
+    const scheduleUrl = new URL(`${BASE_URL}/schedule/employee/${employeeId}`);
+    scheduleUrl.searchParams.append('periodStart', start);
+    scheduleUrl.searchParams.append('periodEnd', end);
 
-    fetch(url, { signal: controller.signal })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Server returned ${res.status}`);
-        return res.json();
+    const timesheetUrl = new URL(`${BASE_URL}/timesheet/period`);
+    timesheetUrl.searchParams.append('periodStart', start);
+    timesheetUrl.searchParams.append('periodEnd', end);
+
+    Promise.all([
+      getJson(scheduleUrl, controller.signal),
+      getJson(timesheetUrl, controller.signal),
+    ])
+      .then(([scheduleRows, timesheetRows]) => {
+        setSchedule(scheduleRows);
+        setTimesheet(timesheetRows);
       })
-      .then(setTimesheet)
       .catch((err) => {
         if (err.name !== 'AbortError') setError(err.message);
       });
 
     return () => controller.abort();
-  }, [BASE_URL, start, end]);
+  }, [BASE_URL, employeeId, start, end]);
 
-  // Group entries by date: { '2026-11-22': [entry, ...], ... }
-  const entriesByDate = useMemo(() => {
+  // Join the two tables: every scheduled job, paired with its timesheet entry
+  // (if the employee has clocked in). Entries from before the schedule existed
+  // have no scheduleId, so they show up as entry-only items.
+  // Result: { '2026-11-22': [{ job, entry }, ...], ... }
+  const itemsByDate = useMemo(() => {
     const map = {};
-    for (const entry of timesheet ?? []) {
-      (map[entry.date] ??= []).push(entry);
-    }
-    return map;
-  }, [timesheet]);
+    if (!schedule || !timesheet) return map;
 
+    const entryByJob = new Map();
+    const legacy = [];
+    for (const entry of timesheet) {
+      if (entry.scheduleId == null) legacy.push(entry);
+      else entryByJob.set(entry.scheduleId, entry);
+    }
+
+    const add = (date, item) => (map[date] ??= []).push(item);
+    for (const job of schedule) {
+      add(job.date, { job, entry: entryByJob.get(job.id) ?? null });
+    }
+    for (const entry of legacy) add(entry.date, { job: null, entry });
+
+    // Within a day: the order they happen (scheduled time, or clock in time)
+    const when = ({ job, entry }) => Number(job?.timeNeeded ?? entry?.startTime ?? 0);
+    for (const items of Object.values(map)) items.sort((a, b) => when(a) - when(b));
+    return map;
+  }, [schedule, timesheet]);
+
+  // Only entries that belong to a job shown this week count toward the total
+  const weeklyHours = useMemo(() => {
+    const entries = Object.values(itemsByDate).flat().map((i) => i.entry).filter(Boolean);
+    return sumHours(entries);
+  }, [itemsByDate]);
+
+  const handleClockedIn = (entry) => setTimesheet((prev) => [...prev, entry]);
+
+  const handleTravelSaved = (updated) =>
+    setTimesheet((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+
+  // Deleting a timesheet entry undoes the clock in: the job goes back to "scheduled"
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this entry?')) return;
+    if (!window.confirm('Delete this time entry? The job will stay on your schedule.')) return;
     try {
       const res = await fetch(`${BASE_URL}/timesheet/${id}`, { method: 'DELETE' });
       if (res.ok) setTimesheet((prev) => prev.filter((e) => e.id !== id));
@@ -77,7 +121,7 @@ function Timesheet({ BASE_URL }) {
     }
   };
 
-  
+  const loading = schedule === null || timesheet === null;
 
   return (
     <div className='ts-main'>
@@ -86,21 +130,36 @@ function Timesheet({ BASE_URL }) {
         <button onClick={() => setSeek(0)}>Current</button>
         <button onClick={() => setSeek((s) => s + 1)}>Next</button>
       </nav>
-      <h3 style={{color: 'var(--text)'}}>{getUIDate(start)} - {getUIDate(end)}</h3>
-      <h3 style={{color:'var(--text)'}}>Total Hours: {weeklyHours}</h3>
+      <h3 style={{ color: 'var(--text)' }}>{getUIDate(start)} - {getUIDate(end)}</h3>
+      <h3 style={{ color: 'var(--text)' }}>Total Hours: {weeklyHours}</h3>
 
       {error && <p>Error: {error}</p>}
-      {timesheet === null && !error && <p>Loading...</p>}
+      {loading && !error && <p>Loading...</p>}
 
-      {timesheet !== null &&
+      {!loading &&
         weekDates.map((date) => (
           <JobCard
             key={date}
-            data={entriesByDate[date] ?? []}
+            items={itemsByDate[date] ?? []}
             date={date}
+            onClockIn={setClockInJob}
+            onAddTravel={setTravelEntry}
             onDelete={handleDelete}
           />
         ))}
+
+      <ClockInModal
+        job={clockInJob}
+        BASE_URL={BASE_URL}
+        onClockedIn={handleClockedIn}
+        onClose={() => setClockInJob(null)}
+      />
+      <AddTravelModal
+        entry={travelEntry}
+        BASE_URL={BASE_URL}
+        onSaved={handleTravelSaved}
+        onClose={() => setTravelEntry(null)}
+      />
     </div>
   );
 }
