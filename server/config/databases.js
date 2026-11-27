@@ -86,6 +86,7 @@ samples.exec(`
 schedule.exec(`
   CREATE TABLE IF NOT EXISTS schedule (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  assignedEmployee INTEGER,
   date TEXT NOT NULL,
   projectName TEXT,
   projectNumber TEXT,
@@ -94,7 +95,7 @@ schedule.exec(`
   task TEXT,
   location TEXT,
   description TEXT,
-  assignedEmployee INTEGER,
+  cubicYards INTEGER,
   sampleType TEXT,
   sets INTEGER,
   setSize INTEGER,

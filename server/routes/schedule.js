@@ -1,19 +1,3 @@
-/* schedule 
-id,
-date,
-projectName,
-projectNumber,
-reportNumber,
-role,
-task,
-location,
-description,
-assignedEmployee,
-sets,
-setSize,
-timeNeeded
-*/
-
 const express = require('express');
 const { schedule } = require('../config/databases');
 const router = express.Router();
@@ -30,6 +14,7 @@ const stmts = {
     WHERE assignedEmployee = ? AND date >= ? AND date <= ?
     ORDER BY date ASC`),
   insert: schedule.prepare(`INSERT INTO schedule (
+    assignedEmployee,
     date,
     projectName,
     projectNumber,
@@ -38,15 +23,16 @@ const stmts = {
     task,
     location,
     description,
-    assignedEmployee,
+    cubicYards,
     sampleType,
     sets,
     setSize,
     timeNeeded
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `),
   update: schedule.prepare(`UPDATE schedule SET
+    assignedEmployee = ?,
     date = ?,
     projectName = ?,
     projectNumber = ?,
@@ -55,7 +41,7 @@ const stmts = {
     task = ?,
     location = ?,
     description = ?,
-    assignedEmployee = ?,
+    cubicYards = ?,
     sampleType = ?,
     sets = ?,
     setSize = ?,
@@ -116,6 +102,7 @@ router.get('/:id', (req, res, next) => {
 router.post('/', (req,res,next) => {
   try {
     const {
+      assignedEmployee,
       date,
       projectName,
       projectNumber,
@@ -124,7 +111,7 @@ router.post('/', (req,res,next) => {
       task,
       location,
       description,
-      assignedEmployee,
+      cubicYards,
       sampleType,
       sets,
       setSize,
@@ -134,6 +121,7 @@ router.post('/', (req,res,next) => {
       return res.status(400).json({error: 'Data and Project Number Required'});
     }
     const entry = stmts.insert.run(
+      assignedEmployee,
       date,
       projectName,
       projectNumber,
@@ -142,13 +130,14 @@ router.post('/', (req,res,next) => {
       task,
       location,
       description,
-      assignedEmployee,
+      cubicYards,
       sampleType,
       sets,
       setSize,
       timeNeeded
     );
     res.status(201).json({id: entry.lastInsertRowid,
+      assignedEmployee,
       date,
       projectName,
       projectNumber,
@@ -157,7 +146,7 @@ router.post('/', (req,res,next) => {
       task,
       location,
       description,
-      assignedEmployee,
+      cubicYards,
       sampleType,
       sets,
       setSize,
@@ -169,6 +158,7 @@ router.post('/', (req,res,next) => {
 router.put('/:id', (req,res,next) => {
   try {
     const {
+      assignedEmployee,
       date,
       projectName,
       projectNumber,
@@ -177,7 +167,7 @@ router.put('/:id', (req,res,next) => {
       task,
       location,
       description,
-      assignedEmployee,
+      cubicYards,
       sampleType,
       sets,
       setSize,
@@ -187,6 +177,7 @@ router.put('/:id', (req,res,next) => {
       return res.status(400).json({error: 'Data and Project Number Required'});
     }
     const entry = stmts.update.run(
+      assignedEmployee,
       date,
       projectName,
       projectNumber,
@@ -195,7 +186,7 @@ router.put('/:id', (req,res,next) => {
       task,
       location,
       description,
-      assignedEmployee,
+      cubicYards,
       sampleType,
       sets,
       setSize,
@@ -206,6 +197,7 @@ router.put('/:id', (req,res,next) => {
 
     res.json({
       id: Number(req.params.id),
+      assignedEmployee,
       date,
       projectName,
       projectNumber,
@@ -214,7 +206,7 @@ router.put('/:id', (req,res,next) => {
       task,
       location,
       description,
-      assignedEmployee,
+      cubicYards,
       sampleType,
       sets,
       setSize,

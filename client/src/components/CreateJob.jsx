@@ -9,6 +9,7 @@ const SAMPLE_TYPES = ['4"x8" Cylinder', '6"x12" Cylinder', 'Grout Cube'];
 const EMPLOYEES = [{ id: 276067, name: 'Nick Saylock' }]; // TODO: load from the server
 
 const INITIAL_FORM = {
+  assignedEmployee: '', // '' = nobody chosen yet (matches the select's placeholder option)
   date: '',
   timeNeeded: 0,
   projectName: '',
@@ -18,7 +19,7 @@ const INITIAL_FORM = {
   task: '',
   location: '',
   description: '',
-  assignedEmployee: '', // '' = nobody chosen yet (matches the select's placeholder option)
+  cubicYards: 0,
   sampleType: SAMPLE_TYPES[0],
   sets: '',
   setSize: '',
@@ -126,7 +127,8 @@ function CreateJob({ BASE_URL }) {
         <select
           className='white-box'
           name='assign-employee'
-          value={276067} /* TODO create database for employees */
+         /* TODO create database for employees */
+          value={form.assignedEmployee}
           onChange={onField('assignedEmployee')}
         >
           <option value='' style={{ color: 'rgba(0,0,0,0.5)' }}>Select Employee</option>
@@ -138,6 +140,12 @@ function CreateJob({ BASE_URL }) {
         {/* Samples only apply to concrete testing */}
         {isConcrete && (
           <>
+            <label>Cubic Yards:</label>
+            <input type='number' min='1' step='1' placeholder='Estimated CY'
+              className='white-box'
+              value={form.cubicYards}
+              onChange={onField('cubicYards')} />
+        
             <label>Sample Type:</label>
             <select className='white-box' value={form.sampleType} onChange={onField('sampleType')}>
               {SAMPLE_TYPES.map((type) => (

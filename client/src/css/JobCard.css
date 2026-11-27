@@ -18,6 +18,10 @@
   border-radius: 10px;
 }
 
+.job-cont-trans {
+  width: 100%;
+}
+
 .job-grid {
   padding: 5px 10px;
   display: grid;
@@ -40,7 +44,7 @@
   border-radius: 5px;
 }
 
-.title-bar, .job-container, .entry {
+.title-bar, .job-container, .entry, .job-cont-trans {
   max-width: 700px;
 }
 

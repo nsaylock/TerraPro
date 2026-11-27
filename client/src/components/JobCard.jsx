@@ -46,6 +46,10 @@ function JobItem({ job, entry, onClockIn, onAddTravel, onDelete }) {
           {info.task && <p>Task: {info.task}</p>}
           {job?.location && <p>Location: {job.location}</p>}
           {job?.description && <p>{job.description}</p>}
+          {job?.cubicYards && <p>{job.cubicYards} CY</p>}
+          {job?.sampleType && <p>{job.sampleType}</p>}
+          {job?.sets && <p style={{display: 'inline'}}>{job.sets}</p>}
+          {job?.setSize && <p style={{display:'inline'}}>({job.setSize})</p>}
         </div>
 
         <div className='job-info-col'>
@@ -152,7 +156,11 @@ function JobItem({ job, entry, onClockIn, onAddTravel, onDelete }) {
 
 // One day: a title bar plus an item for each job. Each item is { job, entry }.
 function JobCard({ items = [], date, onClockIn, onAddTravel, onDelete }) {
-  if (items.length === 0) return <TitleBar date={date} />;
+  if (items.length === 0) return (
+    <div className='job-cont-trans'>
+      <TitleBar date={date} />
+    </div>
+    )
 
   const entries = items.map((i) => i.entry).filter(Boolean);
 
